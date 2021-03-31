@@ -23,16 +23,20 @@ static int dfs(Graph *graph, int id, int a[], int b[], int visited[],
   GraphAdjNode *current = graph->list[id].start;
   while (current) {
     if (visited[current->id] == 1) {
-      if (b[current->id] < min) min = b[current->id];
+      if (b[current->id] < min) {
+        min = b[id] = b[current->id];
+      }
     } else if (visited[current->id] == 0) {
       int new = dfs(graph, current->id, a, b, visited, counter);
-      if (new < min) min = new;
+      if (new < min) {
+        min = b[id] = new;
+      }
     }
     current = current->next;
   }
 
   visited[id] = 2;
-  return (b[id] = min);
+  return min;
 }
 
 int *getSccListFast(Graph *graph) {

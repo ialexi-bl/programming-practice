@@ -48,7 +48,7 @@ static void sccDfs(Graph *graph, int node, int visited[], int result[],
   free(stack);
 }
 
-int *getSccListSlow(Graph *graph) {
+int *getSccList(Graph *graph, int *count) {
   Graph *inverted = invertGraph(graph);
   Stack *stack = createStack();
 
@@ -77,5 +77,6 @@ int *getSccListSlow(Graph *graph) {
   }
   free(stack);
 
+  if (count) *count = counter;
   return result;
 }

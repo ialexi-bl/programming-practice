@@ -1,4 +1,4 @@
 #pragma once
 #include "Graph.h"
 
-int *getSccListSlow(Graph *graph);
+int *getSccList(Graph *graph, int *count);

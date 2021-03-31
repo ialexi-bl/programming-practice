@@ -31,4 +31,4 @@ void unlinkNodes(Graph *graph, int id1, int id2);
 void freeGraph(Graph *graph);
 void printGraph(Graph *graph);
 
-int *getSccList(Graph *graph);
+int *getSccList(Graph *graph, int *count);
