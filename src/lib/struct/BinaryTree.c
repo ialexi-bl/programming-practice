@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 BinaryNode *createBinaryNode() {
-  printf("BinaryTree.c: %d\n", sizeof(BinaryNode));
+  printf("BinaryTree.c: %ld\n", sizeof(BinaryNode));
   BinaryNode *node = malloc(sizeof(BinaryNode));
   node->left = node->right = NULL;
   return node;

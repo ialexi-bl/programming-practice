@@ -2,7 +2,7 @@
 #define LINKED_LIST_FIELDS int nodeId;
 
 #include "../graph/Graph.h"
-#include "LinkedList.h"
+#include "../struct/LinkedList.h"
 
 typedef struct BipartiteGraph {
   LinkedList first, second;

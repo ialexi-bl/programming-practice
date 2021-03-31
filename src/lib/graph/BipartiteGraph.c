@@ -8,8 +8,7 @@ BipartiteGraph *createBipartiteGraph(int n, int colors[]) {
   if (!bgraph) return NULL;
 
   for (int i = 0; i < n; i++) {
-    LinkedNode *node = createLinkedNode();
-    node->nodeId = i;
+    LinkedNode *node = createLinkedNode(i);
     if (colors[i]) {
       linkedListInsert(&bgraph->second, node, NULL);
     } else {
