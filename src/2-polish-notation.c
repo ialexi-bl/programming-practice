@@ -31,8 +31,8 @@ typedef enum OperatorType {
   NodeType type;           \
   void *value;
 #define STACK_FIELDS double number;
-#include "lib/LinkedList.h"
-#include "lib/Stack.h"
+#include "lib/struct/LinkedList.h"
+#include "lib/struct/Stack.h"
 
 /* Structs */
 
@@ -203,12 +203,14 @@ LinkedList *tokenize(char input[], char **error, char *detail) {
         break;
       }
       case 'g': {  // gcd
-        LinkedNode *node = createIncompleteNode(COP_GCD, gcdSequence, gcdLength);
+        LinkedNode *node =
+            createIncompleteNode(COP_GCD, gcdSequence, gcdLength);
         linkedListInsert(tokens, node, NULL);
         break;
       }
       case 'l': {  // lcm
-        LinkedNode *node = createIncompleteNode(COP_LCM, lcmSequence, lcmLength);
+        LinkedNode *node =
+            createIncompleteNode(COP_LCM, lcmSequence, lcmLength);
         linkedListInsert(tokens, node, NULL);
         break;
       }

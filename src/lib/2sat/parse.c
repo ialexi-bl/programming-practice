@@ -4,13 +4,9 @@
 #include <string.h>
 
 #include "../errorio.h"
-#define LITERALS_COUNT 26 * 2
 
-static char *tokenize(char *string, char *error) {
-  char *tokens = malloc(sizeof(char) * strlen(string));
-}
-
-static int parseDisjunction(Graph *graph, int *i, char *string, char **error) {
+static int parseDisjunction(Graph *graph, int literals[LITERALS_COUNT], int *i,
+                            char *string, char *error) {
   int lit1 = -1, lit2 = -1;
   int neg1 = 0, neg2 = 0, disj = 0;
 
@@ -35,7 +31,8 @@ static int parseDisjunction(Graph *graph, int *i, char *string, char **error) {
           return 0;
         }
         if (string[*i + 1] != '/') {
-          sprintfError(error, string, *i, "Expected '/' after '\\'");
+          sprintfError(error, string, *i + 1, "Expected '/' after '\\'");
+          return 0;
         }
         disj = 1;
         (*i)++;
@@ -50,6 +47,8 @@ static int parseDisjunction(Graph *graph, int *i, char *string, char **error) {
         }
         goto interrupt;
       }
+      case ' ':
+        break;
       default: {
         if (!(('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z'))) {
           sprintfError(error, string, *i, "Unexpected token '%c'", c);
@@ -60,7 +59,7 @@ static int parseDisjunction(Graph *graph, int *i, char *string, char **error) {
           return 0;
         }
 
-        int lit = c >= 'a' ? c - 'a' : c - 'A';
+        int lit = c >= 'a' ? c - 'a' + 26 : c - 'A';
         if (disj) {
           lit2 = lit;
         } else {
@@ -71,6 +70,7 @@ static int parseDisjunction(Graph *graph, int *i, char *string, char **error) {
   }
 interrupt:;
 
+  literals[lit1] = literals[lit2] = 1;
   linkDirNodes(graph, lit1 + LITERALS_COUNT * !neg1,
                lit2 + LITERALS_COUNT * neg2);
   linkDirNodes(graph, lit2 + LITERALS_COUNT * !neg2,
@@ -79,29 +79,33 @@ interrupt:;
 }
 // (x\/y)/\(x\/y)
 
-Graph *parse2SatExpression(char *string, char *error) {
+Graph *parse2SatExpression(char *string, int literals[LITERALS_COUNT],
+                           char *error) {
   // There are LITERALS_COUNT possible literals, each can be negated
   // First half of vertices are normal literals, second - negated ones
   Graph *graph = createGraph(LITERALS_COUNT * 2);
+  for (int i = 0; i < LITERALS_COUNT; i++) literals[i] = 0;
 
   int lastType = 1;
   int i = -1;
   char c;
   while ((c = string[++i])) {
     if (c == '(' && lastType == 1) {
-      int success = parseDisjunction(graph, &i, string, error);
+      int success = parseDisjunction(graph, literals, &i, string, error);
       if (!success) {
         freeGraph(graph);
         return NULL;
       }
       lastType = 0;
     } else if (c == '/' && lastType == 0) {
-      if (string[i + 1] != '/') {
-        sprintfError(error, string, i, "Expected '\\' after '/'");
+      if (string[i + 1] != '\\') {
+        sprintfError(error, string, i + 1, "Expected '\\' after '/'");
+        freeGraph(graph);
+        return NULL;
       }
       i++;
       lastType = 1;
-    } else {
+    } else if (c != ' ') {
       sprintfError(error, string, i, "Unexpected token '%c'", c);
       freeGraph(graph);
       return NULL;
@@ -109,7 +113,7 @@ Graph *parse2SatExpression(char *string, char *error) {
   }
 
   if (lastType == 1) {
-    sprintfError(error, string, i - 1, "Unexpected end of input");
+    sprintfError(error, string, i, "Unexpected end of input");
     freeGraph(graph);
     return NULL;
   }

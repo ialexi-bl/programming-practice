@@ -33,6 +33,11 @@
     "graph-scc.h": "c",
     "cstdlib": "c",
     "graph-topological-sort.h": "c",
-    "topological-sort.h": "c"
+    "topological-sort.h": "c",
+    "graph-from-scc.h": "c",
+    "parse.h": "c",
+    "string.h": "c",
+    "graph-fast-scc.h": "c",
+    "bipartitegraph.h": "c"
   }
 }

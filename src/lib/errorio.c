@@ -47,7 +47,7 @@ void sprintfError(char *dest, char *string, int column, char *format, ...) {
   }
 
   // Spaces
-  printCount = min(9, column - 1);
+  printCount = min(10, column);
   memset(dest, ' ', printCount);
   // Arrow + new line + string end
   dest[printCount] = '^';
