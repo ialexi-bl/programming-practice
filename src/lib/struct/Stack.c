@@ -8,10 +8,9 @@ Stack *createStack() {
   return stack;
 }
 
-StackNode *createStackNode(void *value) {
+StackNode *createStackNode() {
   StackNode *node = malloc(sizeof(StackNode));
   node->next = NULL;
-  node->value = value;
   return node;
 }
 

@@ -9,7 +9,6 @@
 
 typedef struct StackNode {
   struct StackNode *next;
-  void *value;
   STACK_FIELDS
 } StackNode;
 
@@ -18,7 +17,7 @@ typedef struct Stack {
 } Stack;
 
 Stack *createStack();
-StackNode *createStackNode(void *value);
+StackNode *createStackNode();
 StackNode *stackPop(Stack *stack);
 int isStackEmpty(Stack *stack);
 void stackPush(Stack *stack, StackNode *newNode);

@@ -17,6 +17,7 @@ static void satDfs(Graph *sccGraph, int id, int *scc, int result[]) {
 
   if (result[id] == -1) {
     result[id] = 1;
+
     for (int i = 0; i < LITERALS_COUNT * 2; i++) {
       // If literal i is in currently processed SCC
       if (scc[i] == id) {
@@ -57,17 +58,20 @@ int main() {
 
   Graph *sccGraph = getSccGraphFromList(graph, scc, sccCount);
   int result[sccCount];
-  for (int i = 0; i < sccCount; i++) result[i] = -1;
-  for (int i = 0; i < sccCount; i++) {
-    if (result[i] == -1) {
-      satDfs(sccGraph, i, scc, result);
+  for (int sccIndex = 0; sccIndex < sccCount; sccIndex++) result[sccIndex] = -1;
+  for (int sccIndex = 0; sccIndex < sccCount; sccIndex++) {
+    if (result[sccIndex] == -1) {
+      satDfs(sccGraph, sccIndex, scc, result);
     }
   }
 
   printf("Solution:\n");
-  for (int i = 0; i < LITERALS_COUNT; i++) {
-    if (literals[i]) {
-      printf("  %c = %d\n", i < 26 ? i + 'A' : i - 26 + 'a', result[scc[i]]);
+  for (int literal = 0; literal < LITERALS_COUNT; literal++) {
+    if (literals[literal]) {
+      // ABC -=% abc
+      printf("  %c = %d\n",
+             literal < 26 ? (literal + 'A') : (literal - 26 + 'a'),
+             result[scc[literal]]);
     }
   }
 }

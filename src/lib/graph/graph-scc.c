@@ -4,6 +4,13 @@
 #define STACK_FIELDS int id;
 #include "../struct/Stack.h"
 
+#define createSccStackNode(_id)            \
+  ({                                       \
+    StackNode *__node = createStackNode(); \
+    __node->id = _id;                      \
+    __node;                                \
+  })
+
 static void getOrder(Graph *graph, int node, int visited[], Stack *stack) {
   GraphAdjNode *current = graph->list[node].start;
   while (current) {
@@ -15,13 +22,14 @@ static void getOrder(Graph *graph, int node, int visited[], Stack *stack) {
     current = current->next;
   }
 
-  stackPush(stack, createStackNode((void *)node));
+  StackNode *ndoe = createSccStackNode(node);
+  stackPush(stack, ndoe);
 }
 
 static void sccDfs(Graph *graph, int node, int visited[], int result[],
                    int counter) {
   Stack *stack = createStack();
-  stackPush(stack, createStackNode((void *)node));
+  stackPush(stack, createSccStackNode(node));
 
   while (!isStackEmpty(stack)) {
     StackNode *stackNode = stackPop(stack);
@@ -34,7 +42,7 @@ static void sccDfs(Graph *graph, int node, int visited[], int result[],
     while (current) {
       if (visited[current->id] != 2) {
         visited[current->id] = 2;
-        stackPush(stack, createStackNode((void *)current->id));
+        stackPush(stack, createSccStackNode(current->id));
       }
       current = current->next;
     }

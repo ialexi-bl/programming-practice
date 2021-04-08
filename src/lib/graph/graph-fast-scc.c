@@ -6,16 +6,16 @@
 
 #include "../struct/Stack.h"
 #include "Graph.h"
-#define createSccStackNode(_id)          \
-  ({                                     \
-    StackNode *node = createStackNode(); \
-    node->nodeId = _id;                  \
-    node;                                \
+#define createSccStackNode(_id)            \
+  ({                                       \
+    StackNode *__node = createStackNode(); \
+    __node->nodeId = _id;                  \
+    __node;                                \
   })
 
-static int dfs(Graph *graph, int id, int a[], int b[], int visited[],
-               int *counter, Stack *stack) {
-  a[id] = b[id] = (*counter)++;
+static int dfs(Graph *graph, int id, int a[], int b[], int visited[], int *time,
+               Stack *stack) {
+  a[id] = b[id] = (*time)++;
   visited[id] = 1;
   stackPush(stack, createSccStackNode(id));
 
@@ -27,7 +27,7 @@ static int dfs(Graph *graph, int id, int a[], int b[], int visited[],
           b[id] = a[current->id];
         }
       } else {
-        int new = dfs(graph, current->id, a, b, visited, counter, stack);
+        int new = dfs(graph, current->id, a, b, visited, time, stack);
         if (new < b[id]) b[id] = new;
       }
     }

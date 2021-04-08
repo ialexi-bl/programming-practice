@@ -8,9 +8,15 @@
 
 #include "lib/struct/Queue.h"
 #include "lib/struct/Stack.h"
+#define createBipartiteStackNode(_id)      \
+  ({                                       \
+    StackNode *__node = createStackNode(); \
+    __node->nodeId = _id;                  \
+    __node;                                \
+  })
 
 int bipartiteDfs(Graph *graph, int id, int colors[], Stack *stack) {
-  StackNode *sn = createStackNode((void *)id);
+  StackNode *sn = createBipartiteStackNode(id);
   stackPush(stack, sn);
 
   colors[id] = 0;
@@ -20,7 +26,7 @@ int bipartiteDfs(Graph *graph, int id, int colors[], Stack *stack) {
   int childId;
 
   while ((current = stackPop(stack))) {
-    id = (int)current->value;
+    id = current->nodeId;
 
     currentChild = graph->list[id].start;
     while (currentChild) {
@@ -29,7 +35,7 @@ int bipartiteDfs(Graph *graph, int id, int colors[], Stack *stack) {
       if (colors[childId] < 0) {
         colors[childId] = !colors[id];
 
-        StackNode *sn = createStackNode((void *)childId);
+        StackNode *sn = createBipartiteStackNode(childId);
         stackPush(stack, sn);
       } else if (colors[childId] == colors[id]) {
         return 0;

@@ -4,11 +4,11 @@
 #include "../struct/Stack.h"
 #include "Graph.h"
 
-#define createGraphStackNode(id)         \
-  ({                                     \
-    StackNode *node = createStackNode(); \
-    node->nodeId = id;                   \
-    node;                                \
+#define createGraphStackNode(id)           \
+  ({                                       \
+    StackNode *__node = createStackNode(); \
+    __node->nodeId = id;                   \
+    __node;                                \
   })
 
 static int topologicalDfs(Graph *graph, int startingNode, int visited[],

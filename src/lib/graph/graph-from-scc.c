@@ -5,14 +5,17 @@
 #include "Graph.h"
 #include "graph-scc.h"
 
-Graph *getSccGraphFromList(Graph *graph, int *scc, int count) {
-  Graph *sccGraph = createGraph(count);
+Graph *getSccGraphFromList(Graph *graph, int *scc, int sccCount) {
+  Graph *sccGraph = createGraph(sccCount);
+
   for (int i = 0; i < graph->n; i++) {
     GraphAdjNode *current = graph->list[i].start;
+
     while (current) {
       if (scc[i] != scc[current->id]) {
         linkDirNodes(sccGraph, scc[i], scc[current->id]);
       }
+
       current = current->next;
     }
   }

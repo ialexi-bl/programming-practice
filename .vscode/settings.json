@@ -38,6 +38,7 @@
     "parse.h": "c",
     "string.h": "c",
     "graph-fast-scc.h": "c",
-    "bipartitegraph.h": "c"
+    "bipartitegraph.h": "c",
+    "graph-weird-scc.h": "c"
   }
 }

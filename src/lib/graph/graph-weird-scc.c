@@ -8,33 +8,37 @@
 #include "../struct/Stack.h"
 #include "Graph.h"
 
-#define createGraphStackNode(id)         \
-  ({                                     \
-    StackNode *node = createStackNode(); \
-    node->nodeId = id;                   \
-    node;                                \
+#define createGraphStackNode(id)           \
+  ({                                       \
+    StackNode *__node = createStackNode(); \
+    __node->nodeId = id;                   \
+    __node;                                \
   })
 
-static int dfs(Graph *graph, int id, int a[], int b[], int visited[],
-               int *counter) {
+static int dfs(Graph *graph, int id, int b[], int visited[], int *counter) {
   b[id] = (*counter)++;
   visited[id] = 1;
 
-  GraphAdjNode *current = graph->list[id].start;
-  while (current) {
-    if (b[current->id] < b[id]) b[id] = b[current->id];
-    current = current->next;
+  // Get minimum
+  GraphAdjNode *child = graph->list[id].start;
+  while (child) {
+    if (b[child->id] < b[id]) {
+      b[id] = b[child->id];
+    }
+
+    child = child->next;
   }
 
-  current = graph->list[id].start;
-  while (current) {
-    if (!visited[current->id] == 0) {
-      int new = dfs(graph, current->id, a, b, visited, counter);
+  // DFS
+  child = graph->list[id].start;
+  while (child) {
+    if (!visited[child->id] == 0) {
+      int new = dfs(graph, child->id, b, visited, counter);
       if (new < b[id]) {
         b[id] = new;
       }
     }
-    current = current->next;
+    child = child->next;
   }
 
   visited[id] = 2;
@@ -43,7 +47,6 @@ static int dfs(Graph *graph, int id, int a[], int b[], int visited[],
 
 int *getSccListWeird(Graph *graph) {
   int *b = malloc(graph->n * sizeof(int));
-  int a[graph->n];
   int visited[graph->n];
 
   for (int i = 0; i < graph->n; i++) {
@@ -54,7 +57,7 @@ int *getSccListWeird(Graph *graph) {
   int counter = 0;
   for (int i = 0; i < graph->n; i++) {
     if (!visited[i]) {
-      dfs(graph, i, a, b, visited, &counter);
+      dfs(graph, i, b, visited, &counter);
     }
   }
 
