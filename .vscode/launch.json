@@ -11,7 +11,8 @@
       "cwd": "${workspaceFolder}",
       "environment": [],
       "externalConsole": false,
-      "MIMode": "gdb",
+      "MIMode": "lldb",
+      "internalConsoleOptions": "openOnSessionStart",
       "setupCommands": [
         {
           "description": "Enable pretty-printing for gdb",
@@ -19,8 +20,7 @@
           "ignoreFailures": true
         }
       ],
-      "preLaunchTask": "Build active file",
-      "miDebuggerPath": "/usr/bin/gdb"
+      "preLaunchTask": "Build active file"
     }
   ]
 }

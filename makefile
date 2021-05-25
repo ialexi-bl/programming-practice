@@ -19,7 +19,6 @@ OBJS = $(patsubst $(LIBDIR)/%.c,$(OBJDIR)/%.o,$(SRCS))
 .PHONY: run clean compile $(EXECUTABLE_OBJ)
 .PRECIOUS: $(EXECUTABLE) $(OBJS)
 
-
 run: compile
 	@echo -n "$$ "
 	$(EXECUTABLE)

@@ -32,7 +32,7 @@ static int dfs(Graph *graph, int id, int b[], int visited[], int *counter) {
   // DFS
   child = graph->list[id].start;
   while (child) {
-    if (!visited[child->id] == 0) {
+    if (visited[child->id] != 0) {
       int new = dfs(graph, child->id, b, visited, counter);
       if (new < b[id]) {
         b[id] = new;

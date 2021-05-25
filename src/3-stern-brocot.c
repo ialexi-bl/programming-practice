@@ -7,7 +7,7 @@
 #define QUEUE_FIELDS   \
   BinaryNode *sbtNode; \
   int depth;
-#include "lib/BinaryTree.h"
+#include "lib/struct/BinaryTree.h"
 #include "lib/Queue.h"
 
 #define M_PHI 1.618033988749894848204
