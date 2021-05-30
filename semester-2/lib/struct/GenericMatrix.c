@@ -42,7 +42,7 @@ Matrix *readGenericMatrix(const char *filename, size_t cellSize,
   return matrix;
 }
 
-Matrix *copyMatrix(Matrix *matrix) {
+Matrix *copyMatrix(const Matrix *matrix) {
   Matrix *newMatrix =
       createGenericMatrix(matrix->width, matrix->height, matrix->cellSize);
   memcpy(newMatrix->content, matrix->content,

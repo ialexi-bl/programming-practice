@@ -51,6 +51,9 @@
         "genericmatrix.h": "c",
         "filesystem": "cpp",
         "integralmatrix.h": "c",
-        "ios": "c"
+        "ios": "c",
+        "stdbool.h": "c",
+        "modulo.h": "c",
+        "limits.h": "c"
     }
 }

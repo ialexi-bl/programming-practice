@@ -10,4 +10,5 @@
 #define readMatrix(filename) readGenericMatrix(filename, sizeof(int), "%d")
 #define printMatrix(matrix) printGenericMatrix(matrix, printIntegralMatrixCell)
 
-void printIntegralMatrixCell(void *value) { printf("%3d", *(int *)value); }
+void printIntegralMatrixCell(void *value);
+long long computeDeterminant(const Matrix *matrix);
