@@ -1,20 +1,20 @@
 # $(target) is supposed to be passed when running make
-CC = gcc
+CC = g++
 LIBS = -lm
-CFLAGS = -Wall -g
+CFLAGS = -Wall -g -std=c++20
 
 BINDIR=bin
 SRCDIR=src
 OBJDIR=$(BINDIR)/obj
 LIBDIR=$(SRCDIR)/lib
 
-TARGET=$(wildcard $(SRCDIR)/$(file)*.c)
-EXECUTABLE_OBJ=$(TARGET:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
-EXECUTABLE=$(BINDIR)/$(notdir $(TARGET:%.c=%))
+TARGET=$(wildcard $(SRCDIR)/$(file)*.cpp)
+EXECUTABLE_OBJ=$(TARGET:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
+EXECUTABLE=$(BINDIR)/main
 
-HEADERS = $(wildcard $(LIBDIR)/*.h) $(wildcard $(LIBDIR)/**/*.h)
-SRCS = $(wildcard $(LIBDIR)/*.c) $(wildcard $(LIBDIR)/**/*.c)
-OBJS = $(patsubst $(LIBDIR)/%.c,$(OBJDIR)/%.o,$(SRCS))
+HEADERS = $(wildcard $(LIBDIR)/*.hpp) $(wildcard $(LIBDIR)/**/*.hpp)
+SRCS = $(wildcard $(LIBDIR)/*.cpp) $(wildcard $(LIBDIR)/**/*.cpp)
+OBJS = $(patsubst $(LIBDIR)/%.cpp,$(OBJDIR)/%.o,$(SRCS))
 
 .PHONY: run clean compile $(EXECUTABLE_OBJ)
 .PRECIOUS: $(EXECUTABLE) $(OBJS)
@@ -24,9 +24,12 @@ run: compile
 	$(EXECUTABLE)
 
 compile: $(OBJS) $(EXECUTABLE_OBJ)
+	echo $(OBJS)
+	echo $(EXECUTABLE_OBJ)
+	echo $(file)
 	$(CC) $(CFLAGS) $^ $(LIBS) -o $(EXECUTABLE)
 
-$(OBJS): $(OBJDIR)/%.o: $(LIBDIR)/%.c $(HEADERS)
+$(OBJS): $(OBJDIR)/%.o: $(LIBDIR)/%.cpp $(HEADERS)
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $< -o $@ $(CFLAGS)
 

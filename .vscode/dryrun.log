@@ -1,0 +1,17 @@
+make compile file=sparse-dense --dry-run --keep-going --print-directory
+make: Entering directory `/Users/jabuj/Projects/programming-practice'
+mkdir -p bin/obj
+g++ -Wall -g -std=c++20 -c src/lib/Matrix.cpp -o bin/obj/Matrix.o -Wall -g -std=c++20
+mkdir -p bin/obj
+ 
+g++ -Wall -g -std=c++20 -c src/lib/SparseMatrix.cpp -o bin/obj/SparseMatrix.o -Wall -g -std=c++20
+mkdir -p bin/obj
+g++ -Wall -g -std=c++20 -c src/lib/benchmark.cpp -o bin/obj/benchmark.o -Wall -g -std=c++20
+mkdir -p bin/obj
+g++ -Wall -g -std=c++20 -c src/sparse-dense-matrix-multiplication.cpp -o bin/obj/sparse-dense-matrix-multiplication.o -Wall -g -std=c++20
+echo bin/obj/DenseMatrix.o bin/obj/Matrix.o bin/obj/SparseMatrix.o bin/obj/benchmark.o
+echo bin/obj/sparse-dense-matrix-multiplication.o
+echo sparse-dense
+g++ -Wall -g -std=c++20 bin/obj/DenseMatrix.o bin/obj/Matrix.o bin/obj/SparseMatrix.o bin/obj/benchmark.o bin/obj/sparse-dense-matrix-multiplication.o -lm -o bin/main
+make: Leaving directory `/Users/jabuj/Projects/programming-practice'
+ 
