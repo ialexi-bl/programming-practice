@@ -1,4 +1,4 @@
-make all file=sparse-dense --print-data-base --no-builtin-variables --no-builtin-rules --question
+make all file=d-sparse-sparse --print-data-base --no-builtin-variables --no-builtin-rules --question
 # GNU Make 3.81
 # Copyright (C) 2006  Free Software Foundation, Inc.
 # This is free software; see the source for copying conditions.
@@ -10,7 +10,8 @@ make all file=sparse-dense --print-data-base --no-builtin-variables --no-builtin
 make: *** No rule to make target `all'.  Stop.
  
 
-# Make data base, printed on Sun Dec  5 16:58:35 2021
+# Make data base, printed on Wed Dec  8 20:29:59 2021
+ 
 
 # Variables
 
@@ -163,9 +164,9 @@ XPC_SERVICE_NAME = application.com.microsoft.VSCode.23210799.23210805
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # automatic
--*-command-variables-*- := file=sparse-dense
+-*-command-variables-*- := file=d-sparse-sparse
 # command line
-file = sparse-dense
+file = d-sparse-sparse
 # environment
 __CF_USER_TEXT_ENCODING = 0x267B21BB:0x6:0x14
 # environment
@@ -197,6 +198,7 @@ TEAMCITY_TOKEN = eyJ0eXAiOiAiVENWMiJ9.RXl4dG9vU2VPS0pVc3ltdTJtVGxEel84UnZn.YTQyO
 # environment
 MAKELEVEL := 0
 # environment
+ 
 LANG = C
 # environment
 VSCODE_PID = 69739
@@ -214,29 +216,23 @@ MY_RUBY_HOME = /Users/jabuj/.rvm/rubies/ruby-2.6.5
 # src/lib/DenseMatrix.hpp (device 16777220, inode 23932591): could not be opened.
 # src/lib/benchmark.hpp (device 16777220, inode 24171961): could not be opened.
 # src/lib/Matrix.cpp (device 16777220, inode 23937565): could not be opened.
-# . (device 16777220, inode 1445092): 17 files, no impossibilities.
+# . (device 16777220, inode 1445092): 13 files, no impossibilities.
 # src/lib/SparseMatrix.cpp (device 16777220, inode 23940962): could not be opened.
 # src/lib (device 16777220, inode 23931638): 11 files, no impossibilities.
 # src/lib/DenseMatrix.cpp (device 16777220, inode 23932596): could not be opened.
 # src/lib/benchmark.cpp (device 16777220, inode 24171953): could not be opened.
 # src/lib/matrix-test.hpp (device 16777220, inode 24183916): could not be opened.
-# src (device 16777220, inode 6371266): 6 files, no impossibilities.
+# src (device 16777220, inode 6371266): 9 files, no impossibilities.
 # src/lib/Matrix.hpp (device 16777220, inode 23931895): could not be opened.
 # src/lib/SparseMatrix.hpp (device 16777220, inode 23940969): could not be opened.
 
-# 34 files, no impossibilities in 12 directories.
+# 33 files, no impossibilities in 12 directories.
 
 # Implicit Rules
 
 # No implicit rules.
 
 # Files
-
-# Not a target:
-src/sparse-dense-matrix-multiplication.cpp:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
 
 # Not a target:
 src/lib/benchmark.hpp:
@@ -259,7 +255,7 @@ src/lib/DenseMatrix.cpp:
 #  Modification time never checked.
 #  File has not been updated.
 
-.PHONY: run clean compile bin/obj/sparse-dense-matrix-multiplication.o
+.PHONY: run clean compile bin/obj/d-sparse-sparse-matrix-multiplication.o
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -277,7 +273,6 @@ bin/obj/DenseMatrix.o: src/lib/DenseMatrix.cpp src/lib/DenseMatrix.hpp src/lib/M
 #  File has not been updated.
 #  commands to execute (from `makefile', line 33):
 	@mkdir -p $(@D)
- 
 	$(CC) $(CFLAGS) -c $< -o $@ $(CFLAGS)
 	
 
@@ -304,6 +299,7 @@ makefile:
 #  Implicit rule search has been done.
 #  Last modified 2021-12-05 14:22:30
 #  File has been updated.
+ 
 #  Successfully updated.
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
@@ -325,7 +321,7 @@ src/lib/SparseMatrix.hpp:
 #  Modification time never checked.
 #  File has not been updated.
 
-bin/obj/sparse-dense-matrix-multiplication.o: src/sparse-dense-matrix-multiplication.cpp
+bin/obj/d-sparse-sparse-matrix-multiplication.o: src/d-sparse-sparse-matrix-multiplication.cpp
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
@@ -335,7 +331,7 @@ bin/obj/sparse-dense-matrix-multiplication.o: src/sparse-dense-matrix-multiplica
 	$(CC) $(CFLAGS) -c $< -o $@ $(CFLAGS)
 	
 
-compile: bin/obj/DenseMatrix.o bin/obj/Matrix.o bin/obj/SparseMatrix.o bin/obj/benchmark.o bin/obj/sparse-dense-matrix-multiplication.o
+compile: bin/obj/DenseMatrix.o bin/obj/Matrix.o bin/obj/SparseMatrix.o bin/obj/benchmark.o bin/obj/d-sparse-sparse-matrix-multiplication.o
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
@@ -427,7 +423,14 @@ bin/obj/benchmark.o: src/lib/benchmark.cpp src/lib/DenseMatrix.hpp src/lib/Matri
 	$(CC) $(CFLAGS) -c $< -o $@ $(CFLAGS)
 	
 
+# Not a target:
+src/d-sparse-sparse-matrix-multiplication.cpp:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
 # files hash-table stats:
+ 
 # Load=25/1024=2%, Rehash=0, Collisions=0/77=0%
 # VPATH Search Paths
 
@@ -440,6 +443,6 @@ bin/obj/benchmark.o: src/lib/benchmark.cpp src/lib/DenseMatrix.hpp src/lib/Matri
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Sun Dec  5 16:58:35 2021
+# Finished Make data base on Wed Dec  8 20:29:59 2021
 
  

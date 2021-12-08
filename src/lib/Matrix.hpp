@@ -6,6 +6,8 @@
 
 using matrix_element_t = double;
 
+constexpr unsigned int MULT_THREADS_COUNT = 8;
+
 class DenseMatrix;
 class SparseMatrix;
 
@@ -20,6 +22,7 @@ class Matrix
     virtual int getHeight() const = 0;
 
     virtual std::unique_ptr<Matrix> multiply(const Matrix &matrix) const = 0;
+    virtual std::unique_ptr<Matrix> dmultiply(const Matrix &matrix) const = 0;
 
     std::string toString() const;
 };

@@ -15,6 +15,18 @@
             "name": "sparse-dense",
             "makeArgs": ["file=sparse-dense"]
         }
+        {
+            "name": "d-dense-dense",
+            "makeArgs": ["file=d-dense-dense"]
+        },
+        {
+            "name": "d-sparse-sparse",
+            "makeArgs": ["file=d-sparse-sparse"]
+        },
+        {
+            "name": "d-sparse-dense",
+            "makeArgs": ["file=d-sparse-dense"]
+        }
     ],
     "files.associations": {
         "*.sss": "stylus",
@@ -115,7 +127,9 @@
         "list": "cpp",
         "map": "cpp",
         "__tree": "cpp",
-        "__functional_03": "cpp"
+        "__functional_03": "cpp",
+        "__functional_base_03": "cpp",
+        "thread": "cpp"
     },
     "makefile.launchConfigurations": [
         {

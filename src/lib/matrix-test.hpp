@@ -8,7 +8,7 @@
 template <class M>
 concept IsMatrix = std::is_base_of<Matrix, M>::value;
 
-template <class M1, class M2, class MExpected>
+template <class M1, class M2, class MExpected, bool MultiThread = false>
 requires IsMatrix<M1> && IsMatrix<M2> && IsMatrix<MExpected>
 void testMultiplication(const std::string &filename1,
                         const std::string &filename2,
@@ -24,7 +24,8 @@ void testMultiplication(const std::string &filename1,
     std::cout << "> Multiplying..." << std::endl;
 
     Timer timer;
-    std::unique_ptr<Matrix> product = m1.multiply(m2);
+    std::unique_ptr<Matrix> product =
+        MultiThread ? m1.dmultiply(m2) : m1.multiply(m2);
     int ms = timer.stop();
 
     if (expected != *product.get()) {
