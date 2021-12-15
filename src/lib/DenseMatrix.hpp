@@ -16,7 +16,7 @@ class DenseMatrix : public Matrix
     DenseMatrix(int height, int width);
     DenseMatrix(const std::string &filename);
     DenseMatrix(std::istream &&stream);
-    ~DenseMatrix();
+    virtual ~DenseMatrix();
 
     matrix_element_t &operator()(int i, int j);
     virtual const matrix_element_t operator()(int i, int j) const override;

@@ -21,6 +21,7 @@ class Matrix
     virtual int getWidth() const = 0;
     virtual int getHeight() const = 0;
 
+    virtual std::unique_ptr<Matrix> add(const Matrix &matrix) const;
     virtual std::unique_ptr<Matrix> multiply(const Matrix &matrix) const = 0;
     virtual std::unique_ptr<Matrix> dmultiply(const Matrix &matrix) const = 0;
 

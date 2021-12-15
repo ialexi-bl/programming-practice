@@ -32,6 +32,23 @@ std::ostream &operator<<(std::ostream &stream, const Matrix &matrix)
     return stream;
 }
 
+std::unique_ptr<Matrix> Matrix::add(const Matrix &matrix) const
+{
+    if (matrix.getHeight() != getHeight() || matrix.getWidth() != getWidth()) {
+        throw std::runtime_error(
+            "Impossible to add matrices of different dimensions");
+    }
+
+    DenseMatrix *result = new DenseMatrix(getHeight(), getWidth());
+    for (int i = 0, m = matrix.getWidth(); i < m; i++) {
+        for (int j = 0, n = matrix.getHeight(); j < n; j++) {
+            (*result)(i, j) = (*this)(i, j) + matrix(i, j);
+        }
+    }
+
+    return std::unique_ptr<Matrix>(result);
+}
+
 // Comparison
 
 bool operator==(const Matrix &m1, const Matrix &m2)

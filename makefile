@@ -21,12 +21,9 @@ OBJS = $(patsubst $(LIBDIR)/%.cpp,$(OBJDIR)/%.o,$(SRCS))
 
 run: compile
 	@echo -n "$$ "
-	$(EXECUTABLE)
+	$(EXECUTABLE) $(args)
 
 compile: $(OBJS) $(EXECUTABLE_OBJ)
-	echo $(OBJS)
-	echo $(EXECUTABLE_OBJ)
-	echo $(file)
 	$(CC) $(CFLAGS) $^ $(LIBS) -o $(EXECUTABLE)
 
 $(OBJS): $(OBJDIR)/%.o: $(LIBDIR)/%.cpp $(HEADERS)

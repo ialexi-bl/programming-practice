@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" type="image/png" href="/assets/bear.jpg" />
+        <title>Жъжъь</title>
+        <style>
+            body,
+            html {
+                width: 100%;
+                height: 100%;
+            }
+            body {
+                margin: 0;
+                padding: 0;
+                background: slateblue;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            @keyframes spin {
+                from {
+                    transform: none;
+                }
+                to {
+                    transform: rotate(1turn);
+                }
+            }
+            .img {
+                height: 200px;
+                width: 200px;
+                border-radius: 50%;
+                animation: 1s spin linear infinite;
+            }
+        </style>
+    </head>
+    <body>
+        <img class="img" src="/assets/jjj.jpg" />
+    </body>
+</html>
