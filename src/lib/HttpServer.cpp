@@ -98,7 +98,7 @@ void HttpServer::handle(NetworkStream &stream, RequestHandler handler) const
     Request request;
     while (true) {
         try {
-            if (stream.peek() == DISCONNECTED) {
+            if (stream.disconnected()) {
                 return;
             }
 
@@ -206,8 +206,6 @@ std::ostream &operator<<(std::ostream &stream, const HttpError &error)
     stream << "HTTP/1.1 " << error.status << ' ' << error.message << net::endl
            << "Content-Length: 0" << net::endl
            << "Connection: " << (error.closeConnection ? "close" : "keep-alive")
-           << net::endl
-           << "Content-Type: text/plain" << net::endl
            << net::endl
            << std::flush;
     return stream;

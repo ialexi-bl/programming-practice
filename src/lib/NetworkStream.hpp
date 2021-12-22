@@ -1,7 +1,6 @@
 #pragma once
 #include <fstream>
 #include <functional>
-#define DISCONNECTED (-2)
 
 constexpr int BUFFER_SIZE = 1024;
 
@@ -16,6 +15,7 @@ std::ostream &endrequest(std::ostream &stream);
 class NetworkStreamBuffer : public std::streambuf
 {
   private:
+    bool disconnected = false;
     int socketFileDescriptor;
     char *buffer;
 
@@ -40,5 +40,6 @@ class NetworkStream : public std::iostream
     NetworkStream(int socketFd);
     virtual ~NetworkStream();
 
+    bool disconnected();
     int socket();
 };

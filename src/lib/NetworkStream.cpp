@@ -64,8 +64,10 @@ std::streambuf::int_type NetworkStreamBuffer::underflow()
                   << std::endl;
         return traits_type::eof();
     }
-    if (!bytes)
-        return DISCONNECTED;
+    if (!bytes) {
+        disconnected = true;
+        return traits_type::eof();
+    }
 
     setg(buffer, buffer, buffer + bytes);
     return traits_type::to_int_type(*gptr());
@@ -74,12 +76,19 @@ std::streambuf::int_type NetworkStreamBuffer::underflow()
 std::streambuf::int_type
 NetworkStreamBuffer::overflow(std::streambuf::int_type value)
 {
+    auto *from = pbase();
     int amount = pptr() - pbase();
-    if (amount) {
-        int written = send(socketFileDescriptor, pbase(), amount, 0);
-        if (written != amount) {
+    while (amount) {
+        int written = send(socketFileDescriptor, from, amount, MSG_NOSIGNAL);
+        if (written < 0) {
+            if (errno == EPIPE) {
+                disconnected = true;
+            }
             return traits_type::eof();
         }
+
+        from += written;
+        amount -= written;
     }
 
     setp(buffer, buffer + BUFFER_SIZE);
@@ -120,6 +129,10 @@ NetworkStream::~NetworkStream()
 
 int NetworkStream::socket()
 {
-    auto rd = dynamic_cast<NetworkStreamBuffer *>(rdbuf());
-    return rd->socketFileDescriptor;
+    return dynamic_cast<NetworkStreamBuffer *>(rdbuf())->socketFileDescriptor;
+}
+
+bool NetworkStream::disconnected()
+{
+    return dynamic_cast<NetworkStreamBuffer *>(rdbuf())->disconnected;
 }

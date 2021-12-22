@@ -4,11 +4,6 @@
 
 int main()
 {
-    // std::filesystem::path p{"abc"};
-
-    // std::cout << std::boolalpha << std::filesystem::file_size(p) <<
-    // std::endl; return 0;
-
     HttpServer server("80", [](const Request &request) {
         std::cout << request;
 

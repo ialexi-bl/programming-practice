@@ -7,12 +7,9 @@ int main(int argc, char *argv[])
 {
     NetworkStream stream("localhost");
 
-    stream << "GET / HTTP/1.1" << net::endl
+    stream << "GET /.gitignore HTTP/1.1" << net::endl
            << "Host: localhost" << net::endl
            << "Connection: close" << net::endrequest << std::flush;
 
-    while (stream.peek() != DISCONNECTED && stream.peek() != EOF) {
-        std::cout << static_cast<char>(stream.get());
-    }
-    std::cout << std::endl;
+    std::cout << stream.rdbuf() << std::endl;
 }
