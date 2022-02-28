@@ -1,3 +1,5 @@
 BreakBeforeBraces: Linux
 IndentWidth: 4
 AllowShortFunctionsOnASingleLine: false
+AllowShortLoopsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: true
