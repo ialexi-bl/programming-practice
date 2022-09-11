@@ -33,12 +33,10 @@ SparseMatrix::SparseMatrix(std::istream &&stream)
         }
         ++rowWidth;
 
-        while (stream.peek() == ' ')
-            stream.get();
+        while (stream.peek() == ' ') stream.get();
 
         char c = stream.peek();
-        if (c != EOF && c != '\n')
-            continue;
+        if (c != EOF && c != '\n') continue;
 
         if (width == -1) {
             width = rowWidth;
@@ -270,8 +268,7 @@ SparseMatrix::SparseMatrix(
     : m_width(width), m_height(height)
 {
     int nnz = 0;
-    for (auto &&m : matrices)
-        nnz += m->m_cols.size();
+    for (auto &&m : matrices) nnz += m->m_cols.size();
 
     m_rows.reserve(height + 1);
     m_cols.reserve(nnz);

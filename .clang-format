@@ -3,3 +3,7 @@ IndentWidth: 4
 AllowShortFunctionsOnASingleLine: false
 AllowShortLoopsOnASingleLine: true
 AllowShortIfStatementsOnASingleLine: true
+NamespaceIndentation: All
+ColumnLimit: 130
+AllowShortLambdasOnASingleLine: Empty
+SpaceBeforeCpp11BracedList: true
