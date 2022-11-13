@@ -5,17 +5,23 @@
 namespace math
 {
     using matrix_value = long double;
+    using vector = std::vector<matrix_value>;
 
     class Matrix
     {
-      private:
+      public:
         int m_width, m_height;
-        std::vector<matrix_value> m_values;
+        vector m_values;
 
       public:
         Matrix(int height, int width);
-        Matrix(int height, int width, std::vector<matrix_value> values);
-        Matrix(int height, int width, std::vector<std::vector<matrix_value>> values);
+        Matrix(int height, int width, const vector &values);
+        Matrix(int height, int width, const std::vector<vector> &values);
+
+        Matrix(const Matrix &) = default;
+        Matrix(Matrix &&) = default;
+        Matrix &operator=(const Matrix &) = default;
+        Matrix &operator=(Matrix &&) = default;
 
       private:
         class Row;
@@ -30,78 +36,51 @@ namespace math
         matrix_value &operator()(int i, int j);
         matrix_value operator()(int i, int j) const;
 
-        void extend(const Matrix &m);
+        // void extend(const Matrix &m);
         Matrix fromColumns(int from, int to);
 
         void swapRows(int i, int j);
         void swapColumns(int i, int j);
 
-        std::pair<Matrix, Matrix> decomposeLU();
-        std::vector<matrix_value> solve(bool chooseMainElement = true) const;
+        std::pair<Matrix, Matrix> decomposeLU() const;
         Matrix invert() const;
         void normalize();
 
+        Matrix operator*(const Matrix &matrix) const;
+        Matrix operator+(const Matrix &matrix) const;
+        Matrix operator-(const Matrix &matrix) const;
+        matrix_value norm() const;
+        matrix_value spectralRadius() const;
+
+        static Matrix id(int size);
+
         friend std::ostream &operator<<(std::ostream &, const Matrix &);
+        friend vector solveLinearSystem(const Matrix &, bool);
+        friend vector solveLinearSystem(const Matrix &, const vector &, bool);
+        friend vector solveLinearSystemUsingLU(const Matrix &matrix, const vector &vector);
+        friend vector solveLowerTriangularLinearSystem(const Matrix &extendedMatrix);
+        friend vector solveLowerTriangularLinearSystem(const Matrix &matrix, const vector &vector);
+        friend vector solveUpperTriangularLinearSystem(const Matrix &extendedMatrix);
+        friend vector solveUpperTriangularLinearSystem(const Matrix &matrix, const vector &vector);
     };
 
     std::ostream &operator<<(std::ostream &stream, const Matrix &m);
 
-    class Matrix::Row
-    {
-
-      private:
-        int m_row;
-        Matrix &m_matrix;
-        matrix_value m_coef = 1;
-
-      private:
-        Row(Matrix &m, int row);
-        Row(Matrix &m, int row, matrix_value coef);
-
-        Row operator-() const;
-        Row operator*(matrix_value k) const;
-        Row operator/(matrix_value k) const;
-        Row &operator+=(const Row &row);
-        Row &operator-=(const Row &row);
-        Row &operator*=(matrix_value k);
-        Row &operator/=(matrix_value k);
-        matrix_value operator()(int j) const;
-
-        friend Matrix;
-        friend inline Row operator*(matrix_value k, const Row &&row)
-        {
-            return row * k;
-        }
-    };
-
-    class Matrix::Column
-    {
-
-      private:
-        int m_column;
-        Matrix &m_matrix;
-
-        matrix_value m_coef = 1;
-
-      private:
-        Column(Matrix &m, int column);
-        Column(Matrix &m, int column, matrix_value coef);
-
-        Column operator-() const;
-        Column operator*(matrix_value k) const;
-        Column operator/(matrix_value k) const;
-        Column &operator+=(const Column &column);
-        Column &operator-=(const Column &column);
-        matrix_value operator()(int i) const;
-        int mainElementIndex() const;
-        int mainElementIndex(int from) const;
-        int mainElementIndex(int from, int to) const;
-
-        friend Matrix;
-        friend inline Column operator*(matrix_value k, const Column &column)
-        {
-            return column * k;
-        }
-    };
+    vector solveLinearSystem(const Matrix &extendedMatrix, bool chooseMainElement = true);
+    vector solveLinearSystem(const Matrix &matrix, const vector &vector, bool chooseMainElement = true);
+    vector solveLinearSystemUsingLU(const Matrix &matrix, const vector &vector);
+    vector solveLowerTriangularLinearSystem(const Matrix &extendedMatrix);
+    vector solveLowerTriangularLinearSystem(const Matrix &matrix, const vector &vector);
+    vector solveUpperTriangularLinearSystem(const Matrix &extendedMatrix);
+    vector solveUpperTriangularLinearSystem(const Matrix &matrix, const vector &vector);
 
 } // namespace math
+
+std::ostream &operator<<(std::ostream &stream, const math::vector &v);
+math::matrix_value operator*(const math::vector &k, const math::vector &v);
+math::Matrix operator*(math::matrix_value k, math::Matrix m);
+math::vector operator*(math::matrix_value k, math::vector v);
+math::vector operator/(math::vector v, math::matrix_value k);
+math::vector operator*(const math::Matrix &m, const math::vector &v);
+math::vector operator-(const math::vector &v1, const math::vector &v2);
+math::matrix_value euclideanNorm(const math::vector &v);

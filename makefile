@@ -1,7 +1,7 @@
 # $(target) is supposed to be passed when running make
 CC = g++
 LIBS = -lm
-CFLAGS = -Wall -g -std=c++20
+CFLAGS = -Wall -g -std=c++20 -O0 -fsanitize=address
 
 BINDIR=bin
 SRCDIR=src
