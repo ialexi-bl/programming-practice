@@ -5,7 +5,7 @@
 std::ostream &operator<<(std::ostream &stream, const math::vector &v)
 {
     stream << "(";
-    for (int i = 0; i < v.size(); i++) {
+    for (size_t i = 0; i < v.size(); i++) {
         if (i) {
             stream << ", ";
         }
@@ -17,7 +17,7 @@ std::ostream &operator<<(std::ostream &stream, const math::vector &v)
 
 math::vector operator*(math::matrix_value k, math::vector v)
 {
-    for (int i = 0; i < v.size(); i++) {
+    for (size_t i = 0; i < v.size(); i++) {
         v[i] *= k;
     }
     return v;
@@ -35,7 +35,7 @@ math::Matrix operator*(math::matrix_value k, math::Matrix m)
 
 math::vector operator/(math::vector v, math::matrix_value k)
 {
-    for (int i = 0; i < v.size(); i++) {
+    for (size_t i = 0; i < v.size(); i++) {
         v[i] /= k;
     }
     return v;
@@ -43,7 +43,7 @@ math::vector operator/(math::vector v, math::matrix_value k)
 
 math::vector operator*(const math::Matrix &m, const math::vector &v)
 {
-    if (m.m_width != v.size()) {
+    if (m.m_width != static_cast<int>(v.size())) {
         throw std::runtime_error("Impossible to multiply such matrix and vector");
     }
 
@@ -61,7 +61,7 @@ math::vector operator*(const math::Matrix &m, const math::vector &v)
 math::matrix_value operator*(const math::vector &v1, const math::vector &v2)
 {
     math::matrix_value result = 0;
-    for (int i = 0; i < v2.size(); i++) {
+    for (size_t i = 0; i < v2.size(); i++) {
         result += v1[i] * v2[i];
     }
     return result;
@@ -70,7 +70,7 @@ math::matrix_value operator*(const math::vector &v1, const math::vector &v2)
 math::vector operator-(const math::vector &v1, const math::vector &v2)
 {
     math::vector result = v1;
-    for (int i = 0; i < result.size(); i++) {
+    for (size_t i = 0; i < result.size(); i++) {
         result[i] -= v2[i];
     }
     return result;
@@ -132,7 +132,7 @@ namespace math
         Column operator/(matrix_value k) const;
         Column &operator+=(const Column &column);
         Column &operator-=(const Column &column);
-        matrix_value operator()(int i) const;
+        matrix_value operator()(size_t i) const;
         int mainElementIndex() const;
         int mainElementIndex(int from) const;
         int mainElementIndex(int from, int to) const;
@@ -245,7 +245,7 @@ namespace math
             // int mainElementIndex = column(j).mainElementIndex(0, j + 1);
             // if (mainElementIndex != j) {swapRows(mainElementIndex, j);}
 
-            for (int i = j - 1; i >= 0; i--) {
+            for (size_t i = j - 1; i >= 0; i--) {
                 if (eq((*this)(i, j), 0)) {
                     continue;
                 }
@@ -400,7 +400,7 @@ namespace math
     static math::matrix_value scalarProduct(const math::vector &v1, const math::vector &v2)
     {
         math::matrix_value result = 0;
-        for (int i = 0; i < v1.size(); i++) {
+        for (size_t i = 0; i < v1.size(); i++) {
             result += v1[i] * v2[i];
         }
         return result;
@@ -435,7 +435,7 @@ namespace math
 
     vector solveLinearSystem(const Matrix &matrix, const vector &vc, bool chooseMainElement)
     {
-        if (vc.size() != matrix.m_height) {
+        if (static_cast<int>(vc.size()) != matrix.m_height) {
             throw std::runtime_error("Impossible to solve a system with such dimensions");
         }
 
@@ -459,7 +459,7 @@ namespace math
 
     vector solveLinearSystemUsingLU(const Matrix &matrix, const vector &v)
     {
-        if (v.size() != matrix.m_height) {
+        if (static_cast<int>(v.size()) != matrix.m_height) {
             throw std::runtime_error("Impossible to solve a system with such dimensions");
         }
 
@@ -485,7 +485,7 @@ namespace math
 
     vector solveLowerTriangularLinearSystem(const Matrix &matrix, const vector &vc)
     {
-        if (vc.size() != matrix.m_height) {
+        if (static_cast<int>(vc.size()) != matrix.m_height) {
             throw std::runtime_error("Impossible to solve a system with such dimensions");
         }
 
@@ -551,7 +551,7 @@ namespace math
 
     vector solveUpperTriangularLinearSystem(const Matrix &matrix, const vector &vc)
     {
-        if (vc.size() != matrix.m_height) {
+        if (static_cast<int>(vc.size()) != matrix.m_height) {
             throw std::runtime_error("Impossible to solve a system with such dimensions");
         }
 
@@ -665,7 +665,7 @@ namespace math
         return (*this += -column);
     }
 
-    matrix_value Matrix::Column::operator()(int i) const
+    matrix_value Matrix::Column::operator()(size_t i) const
     {
         return m_coef * m_matrix(i, m_column);
     }

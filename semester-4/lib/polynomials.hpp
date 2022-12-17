@@ -8,8 +8,8 @@ namespace polynomials
 
     using InterpolationTable = std::vector<std::pair<long double, long double>>;
 
-    InterpolationTable getInterpolationTable(const std::function<long double(long double)> &f, long double m, long double a,
-                                             long double b);
+    InterpolationTable
+    getInterpolationTable(const std::function<long double(long double)> &f, long double m, long double a, long double b);
     InterpolationTable invertInterpolationTable(const InterpolationTable &table);
     void sortInterpolationTable(InterpolationTable &table, long double x);
 

@@ -7,3 +7,8 @@ NamespaceIndentation: All
 ColumnLimit: 130
 AllowShortLambdasOnASingleLine: Empty
 SpaceBeforeCpp11BracedList: true
+AlignAfterOpenBracket: BlockIndent
+BinPackArguments: false
+BinPackParameters: false
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false

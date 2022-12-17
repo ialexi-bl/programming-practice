@@ -3,6 +3,7 @@
 #include <functional>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <utility>
 #include <vector>
@@ -14,7 +15,7 @@ namespace io
         std::string header1,
         std::string header2,
         int indent = 0,
-        int count = INT_MAX
+        int count = std::numeric_limits<int>::max()
     );
     void printTable(std::vector<std::vector<long double>> table, std::vector<std::string> headers, int indent = 0);
 
