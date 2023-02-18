@@ -26,8 +26,8 @@ static std::pair<int, int> getLargestAboveDiagonal(const math::Matrix &matrix)
     return {ir, jr};
 }
 
-static std::pair<std::vector<std::pair<math::matrix_value, math::vector>>, int> getJacobiEigenvectors(math::Matrix A,
-                                                                                                      long double e)
+static std::pair<std::vector<std::pair<math::matrix_value, math::vector>>, int>
+getJacobiEigenvectors(math::Matrix A, long double e)
 {
     auto X = math::Matrix::id(A.m_height);
 
@@ -154,8 +154,8 @@ std::tuple<math::matrix_value, math::vector, int> getScalarEigenvector(const mat
     return {l, *Y1 / euclideanNorm(*Y1), steps};
 }
 
-std::tuple<math::matrix_value, math::vector, int> getOppositeEigenvalue(const math::Matrix &A, math::matrix_value l,
-                                                                        long double e)
+std::tuple<math::matrix_value, math::vector, int>
+getOppositeEigenvalue(const math::Matrix &A, math::matrix_value l, long double e)
 {
     auto [lb, v, s] = getScalarEigenvector(A - l * math::Matrix::id(A.m_height), e);
     return {lb + l, v, s};
@@ -172,8 +172,8 @@ std::tuple<math::matrix_value, math::vector, int> getWielandtEigenvalue(const ma
     math::vector _Y1(A.m_height, 1);
     math::vector _Y2(A.m_height, 1);
 
-    math::matrix_value l1 = 0;
-    math::matrix_value l2 = 1;
+    math::matrix_value l1 = -2.55;
+    math::matrix_value l2 = -2.56;
     math::vector *Y1 = &_Y1;
     math::vector *Y2 = &_Y2;
 
@@ -202,8 +202,8 @@ std::tuple<math::matrix_value, math::vector, int> getWielandtEigenvalue(const ma
 
 int main()
 {
-    std::cout << std::setprecision(16);
-    math::Matrix m(3, 3, {{0, 1, 3}, {1, 0, 1}, {3, 1, 0}});
+    std::cout << std::setprecision(30);
+    math::Matrix m(3, 3, {{-1.48213, -0.03916, 1.08254}, {-0.03916, 1.13958, 0.01617}, {1.08254, 0.01617, -1.48271}});
 
     std::cout << "Matrix:" << std::endl << m << std::endl;
 
@@ -219,7 +219,7 @@ int main()
               << "> Eigenvalue " << powerValue << ", eigenvector " << powerVector << " in " << powerSteps << " steps"
               << std::endl;
 
-    auto [scalarValue, scalarVector, scalarSteps] = getPowerEigenvector(m, EPSILON * EPSILON);
+    auto [scalarValue, scalarVector, scalarSteps] = getScalarEigenvector(m, EPSILON * EPSILON);
     std::cout << "Result by scalar product:" << std::endl
               << "> Eigenvalue " << scalarValue << ", eigenvector " << scalarVector << " in " << scalarSteps << " steps"
               << std::endl;
