@@ -1,4 +1,4 @@
-#include "lib/matrix.hpp"
+#include "../lib/matrix.hpp"
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -57,8 +57,8 @@ static math::matrix_value error(const math::vector &solution, const math::vector
     return error;
 }
 
-static math::vector simpleIteration(const math::Matrix &H, const math::Matrix &g, const math::vector &realSolution,
-                                    int *steps = nullptr)
+static math::vector
+simpleIteration(const math::Matrix &H, const math::Matrix &g, const math::vector &realSolution, int *steps = nullptr)
 {
     math::Matrix result = g;
 
@@ -102,8 +102,8 @@ static math::vector seidel(const math::Matrix &H, const math::Matrix &g, const m
     return result;
 }
 
-static math::vector relaxation(const math::Matrix &H, const math::Matrix &g, const math::vector &realSolution,
-                               int *steps = nullptr)
+static math::vector
+relaxation(const math::Matrix &H, const math::Matrix &g, const math::vector &realSolution, int *steps = nullptr)
 {
     math::matrix_value spectralRadius = H.spectralRadius();
     math::matrix_value q = 2 / (1 + std::sqrt(1 - spectralRadius * spectralRadius));

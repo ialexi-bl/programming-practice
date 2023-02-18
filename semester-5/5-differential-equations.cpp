@@ -1,5 +1,5 @@
+#include "../lib/io.hpp"
 #include "lib/differential-equations.hpp"
-#include "lib/io.hpp"
 #include <cmath>
 #include <iostream>
 

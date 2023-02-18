@@ -1,4 +1,4 @@
-#include "lib/matrix.hpp"
+#include "../lib/matrix.hpp"
 #include <cmath>
 #include <iomanip>
 #include <iostream>

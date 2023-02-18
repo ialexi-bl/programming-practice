@@ -1,6 +1,7 @@
 #include "functions.hpp"
 #include "roots.hpp"
 #include <array>
+#include <assert.h>
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -59,13 +60,13 @@ namespace functions
     }
     Func Polynomial::getEvaluator() const
     {
-        return [=](long double x) {
+        return [this](long double x) {
             return (*this)(x);
         };
     }
     ExtrCalculator Polynomial::getDerivativeAbsMaxCalculator(int order) const
     {
-        return [=](long double a, long double b) {
+        return [this, order](long double a, long double b) {
             return getDerivativeAbsMax(order, a, b);
         };
     }
@@ -100,17 +101,19 @@ namespace functions
         return stream << static_cast<std::string>(polynomial);
     }
 
-    std::vector<Func> legendrePolynomials {[](long double x) -> long double {
-                                               return 1;
-                                           },
-                                           [](long double x) -> long double {
-                                               return x;
-                                           }};
+    std::vector<Func> legendrePolynomials {
+        [](long double x) -> long double {
+            return 1;
+        },
+        [](long double x) -> long double {
+            return x;
+        }};
+
     void initLegendrePolynomial(int n)
     {
-        assert(n < 0 || "Cannot construct Legendre polynomial for n < 0");
+        assert(n >= 0 || "Cannot construct Legendre polynomial for n < 0");
 
-        if (n >= legendrePolynomials.size()) {
+        if (n >= (int)legendrePolynomials.size()) {
             initLegendrePolynomial(n - 1);
             legendrePolynomials.push_back([n](long double x) -> long double {
                 return (2.0 * static_cast<long double>(n) - 1.0) / n * legendrePolynomials[n - 1](x) * x -
@@ -270,7 +273,10 @@ namespace functions
             [w, k](long double x) -> long double {
                 return w(x) * std::pow(x, k);
             },
-            a, b, 10000);
+            a,
+            b,
+            10000
+        );
     }
     std::vector<long double> calculateMoments(Func w, long double a, long double b, int n)
     {
@@ -280,9 +286,10 @@ namespace functions
         return result;
     }
 
-    static std::pair<long double, long double>
-    solveSecondOrderLinearSystem(const std::array<long double, 4> &coefs,
-                                 const std::pair<long double, long double> &constantTerms)
+    static std::pair<long double, long double> solveSecondOrderLinearSystem(
+        const std::array<long double, 4> &coefs,
+        const std::pair<long double, long double> &constantTerms
+    )
     {
         long double D = coefs[0] * coefs[3] - coefs[1] * coefs[2];
 
@@ -316,7 +323,9 @@ namespace functions
     {
         const std::pair<long double, long double> roots = getOrthogonalPolynomialRoots(w, a, b);
         const std::pair<long double, long double> coefs = solveSecondOrderLinearSystem(
-            {1, 1, roots.first, roots.second}, {calculateMoment(w, a, b, 0), calculateMoment(w, a, b, 1)});
+            {1, 1, roots.first, roots.second},
+            {calculateMoment(w, a, b, 0), calculateMoment(w, a, b, 1)}
+        );
         return {{roots.first, coefs.first}, {roots.second, coefs.second}};
     }
 
@@ -353,7 +362,12 @@ namespace functions
         long double simpson(Func f, long double a, long double b)
         {
             long double mid = a + (b - a) / 2;
-            return (b - a) * (f(a) + 4 * f(mid) + f(b)) / 6;
+            return (b - a) * (
+                f(a) 
+                + 4 * 
+                f(mid) + 
+                f(b)
+                ) / 6;
         }
         long double threeEights(Func f, long double a, long double b)
         {
@@ -384,8 +398,13 @@ namespace functions
 
         namespace compound
         {
-            static long double applyCompoundFormula(Func f, long double a, long double b, int m,
-                                                    std::function<long double(Func, long double, long double)> applyFormula)
+            static long double applyCompoundFormula(
+                Func f,
+                long double a,
+                long double b,
+                int m,
+                std::function<long double(Func, long double, long double)> applyFormula
+            )
             {
                 long double result = 0, h = (b - a) / m;
                 for (int i = 1; i <= m; i++) {

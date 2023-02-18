@@ -1,4 +1,4 @@
-#include "lib/matrix.hpp"
+#include "../lib/matrix.hpp"
 #include <iostream>
 
 int main(int argc, char const *argv[])
