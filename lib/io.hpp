@@ -27,6 +27,14 @@ namespace io
         int indent = 0
     );
 
+    void printFunction(
+        std::function<long double(long double)> f,
+        const std::string &name,
+        long double from,
+        long double to,
+        long double step
+    );
+
     void printArrayOfVariables(const std::vector<long double> &coefs, int startFrom = 1, std::string variable = "x");
     void printNodesAndCoefs(
         const std::vector<std::pair<long double, long double>> &coefs,

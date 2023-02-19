@@ -3,6 +3,7 @@
 #include "../lib/polynomials.hpp"
 #include "lib/differential-equations.hpp"
 #include <cmath>
+#include <iomanip>
 #include <iostream>
 #include <utility>
 
@@ -27,62 +28,60 @@ value_t f(value_t x)
 {
     return 2.0 - x;
 }
-value_t f_prime(value_t x)
-{
-    return -1.0;
-}
-value_t f_prime_prime(value_t x)
-{
-    return 0;
-}
-
-// Галеркин (1-x²)*Pi⁽¹¹⁾(x), i=0,1,...
-// Коллокация
 
 static auto rightBoundConditions = std::make_pair<value_t, value_t>(1, 0);
 static auto leftBoundConditions = std::make_pair<value_t, value_t>(1, 0);
 
 int main(int, char **)
 {
-    // auto w = polynomials::jacobi::getWeightedBasis(1, 1, 3);
-    // auto wp = polynomials::jacobi::getWeightedBasisDerivatives(1, 1, 3);
-    // auto wpp = polynomials::jacobi::getWeightedBasisSecondDerivatives(1, 1, 3);
-    // value_t x = 0.3;
-    // int k = 2;
-    // std::cout << w[k](x) << " " << wp[k](x) << " " << wpp[k](x) << std::endl;
+    std::cout << std::setprecision(10);
+    // Solve -1/(x-3) * y'' + (1+x/2)y' - e^(x/2)y=2-x, y(-1)=0, y(1)=0 using Runge-Kutta method from -1 to 1 with step 0.2
 
-    // auto y = [&](value_t x) {
-    //     return (p(x) * wpp[0](x) + q(x) * wp[0](x) + r(x) * w[0](x)) * w[0](x);
-    // };
-    // std::cout << functions::calculateIntegralUsing::compound::middleRect(y, -1, 1, 20) << std::endl;
+    int n = 10;
 
-    // return 0;
-
-    int n = 3;
-    auto solution = diff::solveUsing::galerkin(
+    auto galerkinSolution = diff::secondOrder::solveUsing::galerkin(
         p,
         q,
         r,
         f,
-        f_prime,
-        f_prime_prime,
         polynomials::jacobi::getWeightedBasis(1, 1, n),
         polynomials::jacobi::getWeightedBasisDerivatives(1, 1, n),
         polynomials::jacobi::getWeightedBasisSecondDerivatives(1, 1, n),
         leftBoundConditions,
         rightBoundConditions
     );
+    io::printFunction(galerkinSolution, "u", -1, 1, 0.2);
 
-    int h = 10;
-    io::printTable(2, h + 1, {"x", "u(x)"}, [h, &solution](int row, int col) {
-        value_t x = -1.0 + 2.0 / (value_t)h * row;
-        switch (col) {
-        case 0:
-            return x;
-        case 1:
-            return solution(x);
-        default:
-            return nanl("impossible");
-        }
-    });
+    auto collocationChebyshevSolution = diff::secondOrder::solveUsing::collocation(
+        p,
+        q,
+        r,
+        f,
+        polynomials::jacobi::getWeightedBasis(1, 1, n),
+        polynomials::jacobi::getWeightedBasisDerivatives(1, 1, n),
+        polynomials::jacobi::getWeightedBasisSecondDerivatives(1, 1, n),
+        polynomials::chebyshev::getRoots(n),
+        leftBoundConditions,
+        rightBoundConditions
+    );
+    io::printFunction(collocationChebyshevSolution, "u", -1, 1, 0.2);
+
+    std::vector<value_t> equidistantPoints;
+    for (int i = 0; i < n; i++) {
+        equidistantPoints.push_back(-1.0 + 2.0 / (value_t)n * (i + 0.5));
+    }
+
+    auto collocationEquidistantSolution = diff::secondOrder::solveUsing::collocation(
+        p,
+        q,
+        r,
+        f,
+        polynomials::jacobi::getWeightedBasis(1, 1, n),
+        polynomials::jacobi::getWeightedBasisDerivatives(1, 1, n),
+        polynomials::jacobi::getWeightedBasisSecondDerivatives(1, 1, n),
+        polynomials::chebyshev::getRoots(n),
+        leftBoundConditions,
+        rightBoundConditions
+    );
+    io::printFunction(collocationEquidistantSolution, "u", -1, 1, 0.2);
 }

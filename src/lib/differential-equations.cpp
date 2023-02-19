@@ -8,68 +8,106 @@
 
 namespace diff
 {
-
-    namespace solveUsing
+    namespace secondOrder
     {
-        static value_t productL2(simple_function_t y, simple_function_t z)
+        namespace solveUsing
         {
-            return functions::calculateIntegralUsing::compound::middleRect(
-                [=](value_t x) -> value_t {
-                    return y(x) * z(x);
-                },
-                -1,
-                1,
-                50
-            );
-        }
-
-        simple_function_t galerkin(
-            simple_function_t p,
-            simple_function_t q,
-            simple_function_t r,
-            simple_function_t f,
-            simple_function_t f_prime,
-            simple_function_t f_prime_prime,
-            std::vector<simple_function_t> basis,
-            std::vector<simple_function_t> derivatives,
-            std::vector<simple_function_t> secondDerivatives,
-            std::pair<value_t, value_t> leftBoundConditions,
-            std::pair<value_t, value_t> rightBoundConditions
-        )
-        {
-            assert(basis.size() == derivatives.size() || "Lol");
-
-            int n = basis.size();
-            math::Matrix system(n, n + 1);
-
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < n; j++) {
-                    system(i, j) = productL2(
-                        [&, i](value_t x) {
-                            return p(x) * secondDerivatives[j](x) + q(x) * derivatives[j](x) + r(x) * basis[j](x);
-                        },
-                        basis[i]
-                    );
-
-                    std::cout << "(" << i << ", " << j << ") = " << system(i, j) << std::endl;
-                }
-            }
-            for (int j = 0; j < n; j++) {
-                system(j, n) = productL2(f, basis[j]);
+            static value_t productL2(simple_function_t y, simple_function_t z)
+            {
+                return functions::calculateIntegralUsing::compound::middleRect(
+                    [=](value_t x) -> value_t {
+                        return y(x) * z(x);
+                    },
+                    -1,
+                    1,
+                    100
+                );
             }
 
-            std::cout << system << std::endl;
+            static simple_function_t linearCombination(std::vector<value_t> coefs, std::vector<simple_function_t> basis)
+            {
+                size_t n = basis.size();
+                assert(n == coefs.size() || "Wrong amount of coefficientss");
 
-            auto coefs = math::solveLinearSystem(system);
-            std::cout << coefs << std::endl;
+                return [=](value_t x) -> value_t {
+                    value_t result = 0;
+                    for (size_t i = 0; i < n; i++) {
+                        result += coefs[i] * basis[i](x);
+                    }
+                    return result;
+                };
+            }
 
-            return [=](value_t x) -> value_t {
-                value_t result = 0;
-                for (int i = 0; i < n; i++) {
-                    result += coefs[i] * basis[i](x);
+            simple_function_t galerkin(
+                simple_function_t p,
+                simple_function_t q,
+                simple_function_t r,
+                simple_function_t f,
+                std::vector<simple_function_t> basis,
+                std::vector<simple_function_t> derivatives,
+                std::vector<simple_function_t> secondDerivatives,
+                std::pair<value_t, value_t> leftBoundConditions,
+                std::pair<value_t, value_t> rightBoundConditions
+            )
+            {
+                using namespace math;
+
+                size_t n = basis.size();
+                assert(n > 0 || "Basis must not be empty");
+                assert(
+                    (n == derivatives.size() && n == secondDerivatives.size()) ||
+                    "Wrong amount of basis derivatives or second derivatives"
+                );
+
+                math::Matrix system(n, n + 1);
+                for (size_t i = 0; i < n; i++) {
+                    for (size_t j = 0; j < n; j++) {
+                        system(i, j) = productL2(p * secondDerivatives[j] + q * derivatives[j] + r * basis[j], basis[i]);
+                    }
+
+                    system(i, n) = productL2(f, basis[i]);
                 }
-                return result;
-            };
-        }
-    } // namespace solveUsing
+
+                auto coefs = math::solveLinearSystem(system);
+                return linearCombination(coefs, basis);
+            }
+
+            simple_function_t collocation(
+                simple_function_t p,
+                simple_function_t q,
+                simple_function_t r,
+                simple_function_t f,
+                std::vector<simple_function_t> basis,
+                std::vector<simple_function_t> derivatives,
+                std::vector<simple_function_t> secondDerivatives,
+                std::vector<value_t> nodes,
+                std::pair<value_t, value_t> leftBoundConditions,
+                std::pair<value_t, value_t> rightBoundConditions
+            )
+            {
+                using namespace math;
+
+                size_t n = basis.size();
+                assert(n > 0 || "Basis must not be empty");
+                assert(
+                    (n == derivatives.size() && n == secondDerivatives.size()) ||
+                    "Wrong amount of basis derivatives or second derivatives"
+                );
+                assert(n == nodes.size() || "Wrong amount of nodes");
+
+                math::Matrix system(n, n + 1);
+                for (size_t i = 0; i < n; i++) {
+                    value_t t = nodes[i];
+
+                    for (size_t j = 0; j < n; j++) {
+                        system(i, j) = p(t) * secondDerivatives[j](t) + q(t) * derivatives[j](t) + r(t) * basis[j](t);
+                    }
+                    system(i, n) = f(t);
+                }
+
+                auto coefs = math::solveLinearSystem(system);
+                return linearCombination(coefs, basis);
+            }
+        } // namespace solveUsing
+    }     // namespace secondOrder
 } // namespace diff

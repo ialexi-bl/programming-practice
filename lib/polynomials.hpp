@@ -28,4 +28,9 @@ namespace polynomials
         std::vector<simple_function_t> getWeightedBasisDerivatives(int a, int b, int n);
         std::vector<simple_function_t> getWeightedBasisSecondDerivatives(int a, int b, int n);
     } // namespace jacobi
+
+    namespace chebyshev
+    {
+        std::vector<value_t> getRoots(int n);
+    }
 } // namespace polynomials

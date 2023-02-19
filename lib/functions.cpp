@@ -362,12 +362,7 @@ namespace functions
         long double simpson(Func f, long double a, long double b)
         {
             long double mid = a + (b - a) / 2;
-            return (b - a) * (
-                f(a) 
-                + 4 * 
-                f(mid) + 
-                f(b)
-                ) / 6;
+            return (b - a) * (f(a) + 4 * f(mid) + f(b)) / 6;
         }
         long double threeEights(Func f, long double a, long double b)
         {

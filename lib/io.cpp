@@ -100,6 +100,27 @@ namespace io
         std::cout << "┘" << std::endl;
     }
 
+    void printFunction(
+        std::function<long double(long double)> f,
+        const std::string &name,
+        long double from,
+        long double to,
+        long double step
+    )
+    {
+        printTable(2, static_cast<int>((to - from) / step), {"x", name}, [=](int row, int col) {
+            long double x = from + step * row;
+            switch (col) {
+            case 0:
+                return x;
+            case 1:
+                return f(x);
+            default:
+                return nanl("impossible");
+            }
+        });
+    }
+
     void printArrayOfVariables(const std::vector<long double> &coefs, int startFrom, std::string variable)
     {
         for (int i = 0, s = coefs.size(); i < s; i++) {

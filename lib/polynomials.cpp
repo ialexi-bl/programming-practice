@@ -1,7 +1,9 @@
 #include "./polynomials.hpp"
 #include <cassert>
+#include <cmath>
 #include <iostream>
 #include <map>
+#include <numbers>
 #include <stdexcept>
 #include <vector>
 
@@ -140,4 +142,15 @@ namespace polynomials
         }
     } // namespace jacobi
 
+    namespace chebyshev
+    {
+        std::vector<value_t> getRoots(int n)
+        {
+            std::vector<value_t> result;
+            for (value_t i = 1; i <= n; i++) {
+                result.push_back(std::cos((2.0 * i - 1) / (2 * (value_t)n) * std::numbers::pi));
+            }
+            return result;
+        }
+    } // namespace chebyshev
 } // namespace polynomials
