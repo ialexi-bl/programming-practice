@@ -11,22 +11,22 @@ using math::value_t;
 
 value_t p(value_t x)
 {
-    return -1.0 / (x - 3.0);
+    return -(4.0 - x) / (5.0 - 2.0 * x);
 }
 
 value_t q(value_t x)
 {
-    return 1 + x / 2.0;
+    return (1.0 - x) / 2.0;
 }
 
 value_t r(value_t x)
 {
-    return -std::exp(x / 2.0);
+    return std::log(x + 3.0) / 2.0;
 }
 
 value_t f(value_t x)
 {
-    return 2.0 - x;
+    return 1.0 + x / 3.0;
 }
 
 static auto rightBoundConditions = std::make_pair<value_t, value_t>(1, 0);
@@ -35,7 +35,10 @@ static auto leftBoundConditions = std::make_pair<value_t, value_t>(1, 0);
 int main(int, char **)
 {
     std::cout << std::setprecision(10);
-    // Solve -1/(x-3) * y'' + (1+x/2)y' - e^(x/2)y=2-x, y(-1)=0, y(1)=0 using Runge-Kutta method from -1 to 1 with step 0.2
+    /*
+       Solve -(4.0 - x) / (5.0 - 2.0 * x) * y'' + (1.0 - x) / 2.0 y' + ln(x + 3) / 2 * y=1 + x/3, y(-1)=0, y(1)=0
+       using Runge-Kutta method from -1 to 1 with step 0.2
+    */
 
     int n = 10;
 
@@ -79,7 +82,7 @@ int main(int, char **)
         polynomials::jacobi::getWeightedBasis(1, 1, n),
         polynomials::jacobi::getWeightedBasisDerivatives(1, 1, n),
         polynomials::jacobi::getWeightedBasisSecondDerivatives(1, 1, n),
-        polynomials::chebyshev::getRoots(n),
+        equidistantPoints,
         leftBoundConditions,
         rightBoundConditions
     );

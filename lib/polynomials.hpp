@@ -12,13 +12,11 @@ namespace polynomials
     {
         value_t evaluate(int a, int b, int n, value_t x);
         simple_function_t get(int a, int b, int n);
-
         value_t evaluateDerivative(int a, int b, int n, value_t x);
         simple_function_t getDerivative(int a, int b, int n);
 
         value_t evaluateWeighted(int a, int b, int n, value_t x);
         simple_function_t getWeighted(int a, int b, int n);
-
         value_t evaluateWeightedDerivative(int a, int b, int n, value_t x);
         simple_function_t getWeightedDerivative(int a, int b, int n);
         value_t evaluateWeightedSecondDerivative(int a, int b, int n, value_t x);
@@ -27,6 +25,14 @@ namespace polynomials
         std::vector<simple_function_t> getWeightedBasis(int a, int b, int n);
         std::vector<simple_function_t> getWeightedBasisDerivatives(int a, int b, int n);
         std::vector<simple_function_t> getWeightedBasisSecondDerivatives(int a, int b, int n);
+
+        value_t evaluateWeightedNormed(int a, int b, int n, value_t x);
+        simple_function_t getWeightedNormed(int a, int b, int n);
+        value_t evaluateWeightedNormedDerivative(int a, int b, int n, value_t x);
+        simple_function_t getWeightedNormedDerivative(int a, int b, int n);
+
+        std::vector<simple_function_t> getWeightedNormedBasis(int a, int b, int n);
+        std::vector<simple_function_t> getWeightedNormedBasisDerivatives(int a, int b, int n);
     } // namespace jacobi
 
     namespace chebyshev

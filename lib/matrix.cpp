@@ -692,4 +692,126 @@ namespace math
         return index;
     }
 
+    static std::pair<int, int> getLargestAboveDiagonal(const math::Matrix &matrix)
+    {
+        int ir = 0, jr = 1;
+        for (int j = 2; j < matrix.m_width; j++) {
+            for (int i = 0; i < j; i++) {
+                if (std::abs(matrix(i, j)) > std::abs(matrix(ir, jr))) {
+                    ir = i;
+                    jr = j;
+                }
+            }
+        }
+
+        return {ir, jr};
+    }
+
+    std::vector<std::pair<math::matrix_value, math::vector>> getJacobiEigenvectors(math::Matrix A, long double e, int *steps)
+    {
+        auto X = math::Matrix::id(A.m_height);
+
+        if (steps) {
+            steps = 0;
+        }
+        while (true) {
+            auto [ik, jk] = getLargestAboveDiagonal(A);
+
+            if (std::abs(A(ik, jk)) < e) {
+                break;
+            }
+
+            if (steps) {
+                steps++;
+            }
+
+            auto d = std::sqrt((A(ik, ik) - A(jk, jk)) * (A(ik, ik) - A(jk, jk)) + 4.0 * A(ik, jk) * A(ik, jk));
+            auto c = std::sqrt((1.0 / 2.0) * (1 + std::abs(A(ik, ik) - A(jk, jk)) / d));
+            auto s = sign(A(ik, jk)) * sign(A(ik, ik) - A(jk, jk)) *
+                     std::sqrt((1.0 / 2.0) * (1.0 - std::abs(A(ik, ik) - A(jk, jk)) / d));
+
+            math::vector newValuesI(A.m_height);
+            for (int i = 0; i < A.m_height; i++) {
+                if (i == ik || i == jk) {
+                    continue;
+                }
+                // A(i, ik) = A(ik, i) = c * A(i, ik) + s * A(i, jk);
+                newValuesI[i] = c * A(i, ik) + s * A(i, jk);
+            }
+            newValuesI[ik] = c * c * A(ik, ik) + 2 * c * s * A(ik, jk) + s * s * A(jk, jk);
+            newValuesI[jk] = 0;
+
+            math::vector newValuesJ(A.m_height);
+            for (int i = 0; i < A.m_height; i++) {
+                if (i == ik || i == jk) {
+                    continue;
+                }
+                // A(i, jk) = A(jk, i) = c * A(i, jk) - s * A(i, ik);
+                newValuesJ[i] = c * A(i, jk) - s * A(i, ik);
+            }
+            newValuesJ[ik] = 0;
+            newValuesJ[jk] = s * s * A(ik, ik) - 2 * c * s * A(ik, jk) + c * c * A(jk, jk);
+
+            for (int i = 0; i < A.m_height; i++) {
+                A(i, ik) = A(ik, i) = newValuesI[i];
+                A(i, jk) = A(jk, i) = newValuesJ[i];
+            }
+
+            for (int i = 0; i < A.m_width; i++) {
+                if (i == ik || i == jk) {
+                    continue;
+                }
+                auto xii = X(i, ik) * c + X(i, jk) * s;
+                auto xij = -X(i, ik) * s + X(i, jk) * c;
+                X(i, ik) = xii;
+                X(i, jk) = xij;
+            }
+            auto xii = X(ik, ik) * c + X(ik, jk) * s;
+            auto xij = -X(ik, ik) * s + X(ik, jk) * c;
+            auto xji = X(jk, ik) * c + X(jk, jk) * s;
+            auto xjj = -X(jk, ik) * s + X(jk, jk) * c;
+            X(ik, ik) = xii;
+            X(ik, jk) = xij;
+            X(jk, ik) = xji;
+            X(jk, jk) = xjj;
+        }
+
+        std::vector<std::pair<math::matrix_value, math::vector>> result;
+        for (int i = 0; i < A.m_width; i++) {
+            math::vector eigenvector(A.m_height);
+            for (int j = 0; j < A.m_height; j++) {
+                eigenvector[j] = X(j, i);
+            }
+
+            result.push_back({A(i, i), eigenvector});
+        }
+
+        return result;
+    }
+
+    const math::Matrix *for_wolfram(const math::Matrix &m)
+    {
+        return &m;
+    }
+
 } // namespace math
+
+std::ostream &operator<<(std::ostream &stream, const math::Matrix *m)
+{
+    stream << "{";
+    for (size_t i = 0; i < m->m_height; i++) {
+        if (i) {
+            stream << ",";
+        }
+        stream << "{";
+        for (size_t j = 0; j < m->m_width; j++) {
+            if (j) {
+                stream << ",";
+            }
+            stream << (*m)(i, j);
+        }
+        stream << "}";
+    }
+    stream << "}";
+    return stream;
+}

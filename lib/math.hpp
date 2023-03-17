@@ -10,4 +10,9 @@ namespace math
     simple_function_t operator-(simple_function_t f, simple_function_t g);
     simple_function_t operator*(simple_function_t f, simple_function_t g);
     simple_function_t operator/(simple_function_t f, simple_function_t g);
-}
+
+    template <typename T> static inline int sign(T a)
+    {
+        return a < 0 ? -1 : 1;
+    }
+} // namespace math

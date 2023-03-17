@@ -1,11 +1,12 @@
 #pragma once
+#include "math.hpp"
 #include <iostream>
 #include <utility>
 #include <vector>
 
 namespace math
 {
-    using matrix_value = long double;
+    using matrix_value = value_t;
     using vector = std::vector<matrix_value>;
 
     class Matrix
@@ -75,9 +76,13 @@ namespace math
     vector solveUpperTriangularLinearSystem(const Matrix &extendedMatrix);
     vector solveUpperTriangularLinearSystem(const Matrix &matrix, const vector &vector);
 
+    std::vector<std::pair<math::matrix_value, vector>> getJacobiEigenvectors(math::Matrix A, long double e, int *steps = nullptr);
+
+    const Matrix *for_wolfram(const Matrix &);
 } // namespace math
 
 std::ostream &operator<<(std::ostream &stream, const math::vector &v);
+std::ostream &operator<<(std::ostream &stream, const math::Matrix *m);
 math::matrix_value operator*(const math::vector &k, const math::vector &v);
 math::Matrix operator*(math::matrix_value k, math::Matrix m);
 math::vector operator*(math::matrix_value k, math::vector v);
