@@ -1,11 +1,12 @@
 #include "roots.hpp"
+#include <cmath>
 #include <iostream>
 
 namespace roots
 {
 
-    std::vector<std::pair<long double, long double>> getIntervalsWithRoots(std::function<long double(long double)> f,
-                                                                           long double a, long double b, int N)
+    std::vector<std::pair<long double, long double>>
+    getIntervalsWithRoots(std::function<long double(long double)> f, long double a, long double b, int N)
     {
         long double h = (b - a) / N;
 
@@ -23,8 +24,13 @@ namespace roots
     namespace findRootUsing
     {
 
-        long double bisection(std::function<long double(long double)> f, long double a, long double b, long double epsilon,
-                              bool printDebugInfo)
+        long double bisection(
+            std::function<long double(long double)> f,
+            long double a,
+            long double b,
+            long double epsilon,
+            bool printDebugInfo
+        )
         {
             if (printDebugInfo) std::cout << "- Метод бисекции:" << std::endl;
 
@@ -44,14 +50,20 @@ namespace roots
                 std::cout << "    " << step << " шагов" << std::endl
                           << "    Длина последнего отрезка: " << b - a << std::endl
                           << "    Решение: " << c << std::endl
-                          << "    Модуль невязки: " << abs(f(c)) << std::endl;
+                          << "    Модуль невязки: " << std::abs(f(c)) << std::endl;
 
             return c;
         }
 
-        long double newton(std::function<long double(long double)> f, long double (*f_prime)(long double),
-                           long double (*f_prime_prime)(long double), long double a, long double b, long double epsilon,
-                           bool printDebugInfo)
+        long double newton(
+            std::function<long double(long double)> f,
+            long double (*f_prime)(long double),
+            long double (*f_prime_prime)(long double),
+            long double a,
+            long double b,
+            long double epsilon,
+            bool printDebugInfo
+        )
         {
             if (printDebugInfo) std::cout << "- Метод Ньютона" << std::endl;
 
@@ -65,24 +77,30 @@ namespace roots
 
             if (printDebugInfo) std::cout << "    x0 = " << x0 << std::endl;
 
-            while (abs(prev - x0) > epsilon && step < 1e9) {
+            while (std::abs(prev - x0) > epsilon && step < 1e9) {
                 ++step;
                 prev = x0;
                 x0 = x0 - f(x0) / f_prime(x0);
                 if (printDebugInfo)
-                    std::cout << "    |x_" << step << " - x_" << step - 1 << "| = " << abs(prev - x0) << std::endl;
+                    std::cout << "    |x_" << step << " - x_" << step - 1 << "| = " << std::abs(prev - x0) << std::endl;
             }
 
             if (printDebugInfo)
                 std::cout << "    " << step << " шагов" << std::endl
                           << "    Решение: " << x0 << std::endl
-                          << "    Модуль невязки: " << abs(f(x0)) << std::endl;
+                          << "    Модуль невязки: " << std::abs(f(x0)) << std::endl;
             return x0;
         }
 
-        long double newtonModified(std::function<long double(long double)> f, long double (*f_prime)(long double),
-                                   long double (*f_prime_prime)(long double), long double a, long double b, long double epsilon,
-                                   bool printDebugInfo)
+        long double newtonModified(
+            std::function<long double(long double)> f,
+            long double (*f_prime)(long double),
+            long double (*f_prime_prime)(long double),
+            long double a,
+            long double b,
+            long double epsilon,
+            bool printDebugInfo
+        )
         {
             if (printDebugInfo) std::cout << "- Модифицированный метод Ньютона" << std::endl;
             int step = 0;
@@ -96,7 +114,7 @@ namespace roots
             if (printDebugInfo) std::cout << "    x0 = " << x0 << std::endl;
 
             long double y = f_prime(x0);
-            while (abs(prev - x0) > epsilon && step < 1e9) {
+            while (std::abs(prev - x0) > epsilon && step < 1e9) {
                 ++step;
                 prev = x0;
                 x0 = x0 - f(x0) / y;
@@ -105,12 +123,17 @@ namespace roots
             if (printDebugInfo)
                 std::cout << "    " << step << " шагов" << std::endl
                           << "    Решение: " << x0 << std::endl
-                          << "    Модуль невязки: " << abs(f(x0)) << std::endl;
+                          << "    Модуль невязки: " << std::abs(f(x0)) << std::endl;
             return x0;
         }
 
-        long double tangents(std::function<long double(long double)> f, long double a, long double b, long double epsilon,
-                             bool printDebugInfo)
+        long double tangents(
+            std::function<long double(long double)> f,
+            long double a,
+            long double b,
+            long double epsilon,
+            bool printDebugInfo
+        )
         {
             if (printDebugInfo) std::cout << "- Метод секущих от " << a << " до " << b << std::endl;
             int step = 0;
@@ -119,7 +142,7 @@ namespace roots
             long double x0 = a + h, x1 = b - h, t;
             if (printDebugInfo) std::cout << "    x0 = " << x0 << ", x1 = " << x1 << std::endl;
 
-            while (abs(x1 - x0) > epsilon && step < 1e9) {
+            while (std::abs(x1 - x0) > epsilon && step < 1e9) {
                 ++step;
                 t = x0;
                 x0 = x0 - (x0 - x1) * f(x0) / (f(x0) - f(x1));
@@ -129,7 +152,7 @@ namespace roots
             if (printDebugInfo)
                 std::cout << "    " << step << " шагов" << std::endl
                           << "    Решение: " << x0 << std::endl
-                          << "    Модуль невязки: " << abs(f(x0)) << std::endl;
+                          << "    Модуль невязки: " << std::abs(f(x0)) << std::endl;
             return x0;
         }
 
@@ -137,8 +160,8 @@ namespace roots
 
     namespace findAllRootsUsing
     {
-        std::vector<long double> tangents(std::function<long double(long double)> f, long double a, long double b,
-                                          long double epsilon, int N)
+        std::vector<long double>
+        tangents(std::function<long double(long double)> f, long double a, long double b, long double epsilon, int N)
         {
 
             std::vector<std::pair<long double, long double>> intervals = getIntervalsWithRoots(f, a, b, N);

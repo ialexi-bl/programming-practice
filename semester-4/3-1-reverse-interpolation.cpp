@@ -1,6 +1,6 @@
-#include "lib/io.hpp"
+#include "../lib/io.hpp"
+#include "../lib/roots.hpp"
 #include "lib/polynomials.hpp"
-#include "lib/roots.hpp"
 #include <cmath>
 #include <functional>
 #include <iomanip>
@@ -68,17 +68,26 @@ int main()
 
         long double firstValue = polynomials::interpolateUsing::lagrange(invertedTable, n, F);
 
-        std::sort(table.begin(), table.end(),
-                  [F](const std::pair<long double, long double> &a, const std::pair<long double, long double> &b) {
-                      return abs(a.second - F) < abs(b.second - F);
-                  });
+        std::sort(
+            table.begin(),
+            table.end(),
+            [F](const std::pair<long double, long double> &a, const std::pair<long double, long double> &b) {
+                return std::abs(a.second - F) < std::abs(b.second - F);
+            }
+        );
 
         std::vector<long double> roots = roots::findAllRootsUsing::tangents(
-            [&table, n, F](long double x) { return polynomials::interpolateUsing::lagrange(table, n, x) - F; }, a, b, epsilon);
+            [&table, n, F](long double x) {
+                return polynomials::interpolateUsing::lagrange(table, n, x) - F;
+            },
+            a,
+            b,
+            epsilon
+        );
 
         std::cout << "==> Способ 1" << std::endl
                   << "      Ответ: x = " << firstValue << std::endl
-                  << "      |f(x) - F| = " << abs(f(firstValue) - F) << std::endl
+                  << "      |f(x) - F| = " << std::abs(f(firstValue) - F) << std::endl
                   << "==> Способ 2" << std::endl
                   << "      Количество корней: " << roots.size() << std::endl;
 
@@ -86,7 +95,7 @@ int main()
             std::cout << "      Корни: " << std::endl;
             for (int i = 0; i < roots.size(); i++) {
                 std::cout << "        " << i + 1 << ". x = " << roots[i] << std::endl
-                          << "           Модуль невязки: |f(x) - F| = " << abs(f(roots[i]) - F) << std::endl;
+                          << "           Модуль невязки: |f(x) - F| = " << std::abs(f(roots[i]) - F) << std::endl;
             }
         }
 

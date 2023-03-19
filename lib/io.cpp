@@ -2,11 +2,10 @@
 #include <algorithm>
 #include <cassert>
 
-static std::string tableBorder = "─────────────────────────";
-static int borderWidth = tableBorder.length() / 3;
-
 namespace io
 {
+    static std::string tableBorder = "─────────────────────────";
+    static size_t borderWidth = tableBorder.length() / 3;
 
     static void indent(int width)
     {

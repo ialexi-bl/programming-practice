@@ -1,4 +1,5 @@
 #pragma once
+#include "math.hpp"
 #include <array>
 #include <functional>
 #include <string>
@@ -6,83 +7,85 @@
 
 namespace functions
 {
-    using Func = std::function<long double(long double)>;
-    using Integrator = std::function<long double(long double, long double)>;
-    using ExtrCalculator = std::function<long double(long double, long double)>;
+    using math::value_t;
+
+    using Func = math::simple_function_t;
+    using Integrator = std::function<value_t(value_t, value_t)>;
+    using ExtrCalculator = std::function<value_t(value_t, value_t)>;
 
     class Polynomial
     {
       private:
-        std::vector<long double> m_coefs;
+        std::vector<value_t> m_coefs;
 
       public:
         Polynomial() = default;
-        Polynomial(const std::vector<long double> &coefs);
+        Polynomial(const std::vector<value_t> &coefs);
 
-        long double operator[](int k) const;
-        long double operator()(long double x) const;
+        value_t operator[](int k) const;
+        value_t operator()(value_t x) const;
         operator std::string() const;
 
         Func getEvaluator() const;
 
-        long double getDerivativeAbsMax(int order, long double a, long double b) const;
+        value_t getDerivativeAbsMax(int order, value_t a, value_t b) const;
         ExtrCalculator getDerivativeAbsMaxCalculator(int order) const;
 
         Polynomial differentiate() const;
-        Polynomial integrate(long double c = 0) const;
-        long double integrate(long double a, long double b) const;
+        Polynomial integrate(value_t c = 0) const;
+        value_t integrate(value_t a, value_t b) const;
     };
 
     std::ostream &operator<<(std::ostream &stream, const Polynomial &polynomial);
 
     extern std::vector<Func> legendrePolynomials;
     Func getLegendrePolynomial(int n);
-    std::vector<long double> getLegendreRoots(int n);
+    std::vector<value_t> getLegendreRoots(int n);
 
-    long double getGaussCoefficient(int n, long double xk);
-    long double getGaussCoefficient(int n, long double a, long double b, long double xk);
-    std::vector<std::pair<long double, long double>> getGaussCoefficients(int n);
-    std::vector<std::pair<long double, long double>> getGaussCoefficients(int n, long double a, long double b);
+    value_t getGaussCoefficient(int n, value_t xk);
+    value_t getGaussCoefficient(int n, value_t a, value_t b, value_t xk);
+    std::vector<std::pair<value_t, value_t>> getGaussCoefficients(int n);
+    std::vector<std::pair<value_t, value_t>> getGaussCoefficients(int n, value_t a, value_t b);
 
-    std::vector<long double> calculateDerivativeValues(Func f, long double a, long double b, int m);
-    std::vector<long double> calculateDerivativeValuesPrecise(Func f, long double a, long double b, int m);
-    std::vector<long double> calculateSecondDerivativeValues(Func f, long double a, long double b, int m);
+    std::vector<value_t> calculateDerivativeValues(Func f, value_t a, value_t b, int m);
+    std::vector<value_t> calculateDerivativeValuesPrecise(Func f, value_t a, value_t b, int m);
+    std::vector<value_t> calculateSecondDerivativeValues(Func f, value_t a, value_t b, int m);
 
-    long double getAbsMaxOnInterval(std::vector<long double> maxima, Func f, long double a, long double b);
+    value_t getAbsMaxOnInterval(std::vector<value_t> maxima, Func f, value_t a, value_t b);
 
-    std::vector<std::pair<long double, long double>> getMelerCoefficients(int n);
-    std::vector<std::pair<long double, long double>> getMelerCoefficients(int n, long double a, long double b);
-    long double calculateMelerIntegral(Func f, int n, long double a, long double b);
+    std::vector<std::pair<value_t, value_t>> getMelerCoefficients(int n);
+    std::vector<std::pair<value_t, value_t>> getMelerCoefficients(int n, value_t a, value_t b);
+    value_t calculateMelerIntegral(Func f, int n, value_t a, value_t b);
 
-    long double calculateMoment(Func f, long double a, long double b, int k);
-    std::vector<long double> calculateMoments(Func f, long double a, long double b, int n);
+    value_t calculateMoment(Func f, value_t a, value_t b, int k);
+    std::vector<value_t> calculateMoments(Func f, value_t a, value_t b, int n);
 
-    Polynomial getOrthogonalPolynomial(Func w, long double a, long double b);
-    std::pair<long double, long double> getOrthogonalPolynomialRoots(Func w, long double a, long double b);
-    std::vector<std::pair<long double, long double>> getArbitraryWeightCoefs(Func w, long double a, long double b);
+    Polynomial getOrthogonalPolynomial(Func w, value_t a, value_t b);
+    std::pair<value_t, value_t> getOrthogonalPolynomialRoots(Func w, value_t a, value_t b);
+    std::vector<std::pair<value_t, value_t>> getArbitraryWeightCoefs(Func w, value_t a, value_t b);
 
-    long double calculateArbitrareWeightIntegral(Func f, Func w, long double a, long double b);
+    value_t calculateArbitrareWeightIntegral(Func f, Func w, value_t a, value_t b);
 
     namespace calculateIntegralUsing
     {
-        long double leftRect(Func f, long double a, long double b);
-        long double middleRect(Func f, long double a, long double b);
-        long double rightRect(Func f, long double a, long double b);
-        long double trapezoid(Func f, long double a, long double b);
-        long double simpson(Func f, long double a, long double b);
-        long double threeEights(Func f, long double a, long double b);
-        long double gauss(Func f, int n, long double a, long double b);
-        long double meler(Func f, int n, long double a, long double b);
+        value_t leftRect(Func f, value_t a, value_t b);
+        value_t middleRect(Func f, value_t a, value_t b);
+        value_t rightRect(Func f, value_t a, value_t b);
+        value_t trapezoid(Func f, value_t a, value_t b);
+        value_t simpson(Func f, value_t a, value_t b);
+        value_t threeEights(Func f, value_t a, value_t b);
+        value_t gauss(Func f, int n, value_t a, value_t b);
+        value_t meler(Func f, int n, value_t a, value_t b);
 
         namespace compound
         {
-            long double leftRect(Func f, long double a, long double b, int m);
-            long double middleRect(Func f, long double a, long double b, int m);
-            long double rightRect(Func f, long double a, long double b, int m);
-            long double trapezoid(Func f, long double a, long double b, int m);
-            long double simpson(Func f, long double a, long double b, int m);
-            long double threeEights(Func f, long double a, long double b, int m);
-            long double gauss(Func f, int n, long double a, long double b, int m, Integrator integrate);
+            value_t leftRect(Func f, value_t a, value_t b, int m);
+            value_t middleRect(Func f, value_t a, value_t b, int m);
+            value_t rightRect(Func f, value_t a, value_t b, int m);
+            value_t trapezoid(Func f, value_t a, value_t b, int m);
+            value_t simpson(Func f, value_t a, value_t b, int m);
+            value_t threeEights(Func f, value_t a, value_t b, int m);
+            value_t gauss(Func f, int n, value_t a, value_t b, int m, Integrator integrate);
         } // namespace compound
     }     // namespace calculateIntegralUsing
 
@@ -90,12 +93,12 @@ namespace functions
     {
         namespace compound
         {
-            long double leftRect(ExtrCalculator getExtr, long double a, long double b, int m);
-            long double middleRect(ExtrCalculator getExtr, long double a, long double b, int m);
-            long double rightRect(ExtrCalculator getExtr, long double a, long double b, int m);
-            long double trapezoid(ExtrCalculator getExtr, long double a, long double b, int m);
-            long double simpson(ExtrCalculator getExtr, long double a, long double b, int m);
-            long double threeEights(ExtrCalculator getExtr, long double a, long double b, int m);
+            value_t leftRect(ExtrCalculator getExtr, value_t a, value_t b, int m);
+            value_t middleRect(ExtrCalculator getExtr, value_t a, value_t b, int m);
+            value_t rightRect(ExtrCalculator getExtr, value_t a, value_t b, int m);
+            value_t trapezoid(ExtrCalculator getExtr, value_t a, value_t b, int m);
+            value_t simpson(ExtrCalculator getExtr, value_t a, value_t b, int m);
+            value_t threeEights(ExtrCalculator getExtr, value_t a, value_t b, int m);
         } // namespace compound
     }     // namespace getTheoreticalErrorOf
 

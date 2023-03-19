@@ -10,51 +10,39 @@
 namespace polynomials
 {
     using polynomial_list = std::vector<simple_function_t>;
-    static std::map<int, polynomial_list> jacobiPolynomials;
-
-    static void prepareJacobiPolynomial(int a, int b, int n, polynomial_list &polynomials)
-    {
-        assert(polynomials.size() >= 2 || "Polynomials list was not properly initialized");
-
-        if (n < (int)polynomials.size()) {
-            return;
-        }
-
-        prepareJacobiPolynomial(a, b, n - 1, polynomials);
-        polynomials.push_back([a, n, &polynomials](value_t x) -> value_t {
-            value_t k = a, m = n;
-            return (m + k) * (2 * m + 2.0 * k - 1.0) / ((m + 2.0 * k) * m) * (x * polynomials[n - 1](x)) -
-                   (m + k) * (m + k - 1.0) / ((m + 2.0 * k) * m) * polynomials[n - 2](x);
-        });
-    }
-    static void prepareJacobiPolynomial(int a, int b, int n)
-    {
-        assert(n >= 0 || "Cannot construct Jacobi polynomial for n < 0");
-        assert(a == b || "Jacobi polynomials for a!=b are not supported");
-
-        if (jacobiPolynomials.find(a) == jacobiPolynomials.end()) {
-            jacobiPolynomials[a] = {
-                [](value_t x) {
-                    return 1.0;
-                },
-                [a](value_t x) {
-                    return (a + 1) * x;
-                }};
-        }
-        prepareJacobiPolynomial(a, b, n, jacobiPolynomials[a]);
-    }
 
     namespace jacobi
     {
         value_t evaluate(int a, int b, int n, value_t x)
         {
-            prepareJacobiPolynomial(a, b, n);
-            return jacobiPolynomials[a][n](x);
+            assert(n >= 0 || "Cannot construct Jacobi polynomial for n < 0");
+            assert(a == b || "Jacobi polynomials for a!=b are not supported");
+            value_t k = a;
+
+            value_t P0_x = 1.0;
+            value_t P1_x = (k + 1.0) * x;
+
+            if (n == 0) {
+                return P0_x;
+            }
+            if (n == 1) {
+                return P1_x;
+            }
+
+            for (value_t i = 2; i <= n; i++) {
+                value_t Pi_x = (i + k) * (2 * i + 2.0 * k - 1.0) / ((i + 2.0 * k) * i) * (x * P1_x) -
+                               (i + k) * (i + k - 1.0) / ((i + 2.0 * k) * i) * P0_x;
+
+                P0_x = P1_x;
+                P1_x = Pi_x;
+            }
+            return P1_x;
         }
         simple_function_t get(int a, int b, int n)
         {
-            prepareJacobiPolynomial(a, b, n);
-            return jacobiPolynomials[a][n];
+            return [=](value_t x) {
+                return evaluate(a, b, n, x);
+            };
         }
 
         value_t evaluateDerivative(int a, int b, int n, value_t x)

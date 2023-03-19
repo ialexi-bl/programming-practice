@@ -83,7 +83,7 @@ int main()
     // std::cout << math::for_wolfram(GL) << std::endl;
     std::cout << "Eigenvalues:" << std::endl;
 
-    for (auto &[value, _] : eigenValues) {
+    for (auto &[value, vec] : eigenValues) {
         std::cout << "- " << value << std::endl;
     }
 }

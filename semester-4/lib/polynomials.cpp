@@ -6,8 +6,8 @@
 
 namespace polynomials
 {
-    InterpolationTable getInterpolationTable(const std::function<long double(long double)> &f, long double m, long double a,
-                                             long double b)
+    InterpolationTable
+    getInterpolationTable(const std::function<long double(long double)> &f, long double m, long double a, long double b)
     {
         InterpolationTable result;
         result.reserve(m + 1);
@@ -33,10 +33,13 @@ namespace polynomials
 
     void sortInterpolationTable(InterpolationTable &table, long double x)
     {
-        std::sort(table.begin(), table.end(),
-                  [x](const std::pair<long double, long double> &a, const std::pair<long double, long double> &b) {
-                      return abs(a.first - x) < abs(b.first - x);
-                  });
+        std::sort(
+            table.begin(),
+            table.end(),
+            [x](const std::pair<long double, long double> &a, const std::pair<long double, long double> &b) {
+                return std::abs(a.first - x) < std::abs(b.first - x);
+            }
+        );
     }
 
     static long double getLagrangeCoef(const InterpolationTable &table, int n, int k, long double x)

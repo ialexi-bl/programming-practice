@@ -1,5 +1,5 @@
-#include "lib/functions.hpp"
-#include "lib/io.hpp"
+#include "../lib/functions.hpp"
+#include "../lib/io.hpp"
 #include <cmath>
 #include <functional>
 #include <iomanip>
@@ -69,7 +69,9 @@ int main()
         std::vector<long double> derivatives = functions::calculateDerivativeValues(f, a, a + m * h, m);
 
         io::printTable(
-            4, m + 1, {"x", "f(x)", "f'n(x)", "|f'n(x) - f'(x)|"},
+            4,
+            m + 1,
+            {"x", "f(x)", "f'n(x)", "|f'n(x) - f'(x)|"},
             [&, a, h](int row, int col) {
                 long double x = a + row * h;
                 switch (col) {
@@ -80,17 +82,20 @@ int main()
                 case 2:
                     return derivatives[row];
                 case 3:
-                    return abs(derivatives[row] - f_prime(x));
+                    return std::abs(derivatives[row] - f_prime(x));
                 default:
                     return std::nanl("impossible");
                 }
             },
-            2);
+            2
+        );
 
         std::vector<long double> derivativesPrecise = functions::calculateDerivativeValuesPrecise(f, a, a + m * h, m);
 
         io::printTable(
-            4, m + 1, {"x", "f(x)", "f'n2(x)", "|f'n2(x) - f'(x)|"},
+            4,
+            m + 1,
+            {"x", "f(x)", "f'n2(x)", "|f'n2(x) - f'(x)|"},
             [&, a, h](int row, int col) {
                 long double x = a + row * h;
                 switch (col) {
@@ -101,17 +106,20 @@ int main()
                 case 2:
                     return derivativesPrecise[row];
                 case 3:
-                    return abs(derivativesPrecise[row] - f_prime(x));
+                    return std::abs(derivativesPrecise[row] - f_prime(x));
                 default:
                     return std::nanl("impossible");
                 }
             },
-            2);
+            2
+        );
 
         std::vector<long double> secondDerivatives = functions::calculateSecondDerivativeValues(f, a, a + m * h, m);
 
         io::printTable(
-            4, m + 1, {"x", "f(x)", "f''n(x)", "|f''n(x) - f''(x)|"},
+            4,
+            m + 1,
+            {"x", "f(x)", "f''n(x)", "|f''n(x) - f''(x)|"},
             [&, a, h](int row, int col) {
                 long double x = a + row * h;
                 switch (col) {
@@ -122,12 +130,13 @@ int main()
                 case 2:
                     return secondDerivatives[row];
                 case 3:
-                    return abs(secondDerivatives[row] - f_prime_prime(x));
+                    return std::abs(secondDerivatives[row] - f_prime_prime(x));
                 default:
                     return std::nanl("impossible");
                 }
             },
-            2);
+            2
+        );
 
         std::cout << "> Запустить программу заново? [y/n]" << std::endl;
         char c;

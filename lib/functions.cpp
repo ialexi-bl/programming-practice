@@ -1,4 +1,5 @@
 #include "functions.hpp"
+#include "math.hpp"
 #include "roots.hpp"
 #include <array>
 #include <assert.h>
@@ -10,17 +11,17 @@
 
 namespace functions
 {
-    Polynomial::Polynomial(const std::vector<long double> &coefs) : m_coefs(coefs)
+    Polynomial::Polynomial(const std::vector<value_t> &coefs) : m_coefs(coefs)
     {
     }
 
-    long double Polynomial::operator[](int k) const
+    value_t Polynomial::operator[](int k) const
     {
         return m_coefs[k];
     }
-    long double Polynomial::operator()(long double x) const
+    value_t Polynomial::operator()(value_t x) const
     {
-        long double result = 0;
+        value_t result = 0;
         for (auto coef = m_coefs.rbegin(); coef != m_coefs.rend(); coef++) {
             result *= x;
             result += *coef;
@@ -49,30 +50,30 @@ namespace functions
         return str;
     }
 
-    long double Polynomial::getDerivativeAbsMax(int order, long double a, long double b) const
+    value_t Polynomial::getDerivativeAbsMax(int order, value_t a, value_t b) const
     {
         Polynomial derivative = differentiate();
         for (int i = 1; i < order; i++) derivative = derivative.differentiate();
 
-        std::vector<long double> roots =
+        std::vector<value_t> roots =
             roots::findAllRootsUsing::tangents(derivative.getEvaluator(), a, b, 1e-8, static_cast<int>((b - a) / 0.1));
         return getAbsMaxOnInterval(roots, getEvaluator(), a, b);
     }
     Func Polynomial::getEvaluator() const
     {
-        return [this](long double x) {
+        return [this](value_t x) {
             return (*this)(x);
         };
     }
     ExtrCalculator Polynomial::getDerivativeAbsMaxCalculator(int order) const
     {
-        return [this, order](long double a, long double b) {
+        return [this, order](value_t a, value_t b) {
             return getDerivativeAbsMax(order, a, b);
         };
     }
     Polynomial Polynomial::differentiate() const
     {
-        std::vector<long double> new_coefs;
+        std::vector<value_t> new_coefs;
         new_coefs.insert(new_coefs.begin(), m_coefs.size() == 0 ? m_coefs.begin() : m_coefs.begin() + 1, m_coefs.end());
         for (int i = 0, s = new_coefs.size(); i < s; i++) {
             new_coefs[i] *= (i + 1);
@@ -80,9 +81,9 @@ namespace functions
         return new_coefs;
     }
 
-    Polynomial Polynomial::integrate(long double c) const
+    Polynomial Polynomial::integrate(value_t c) const
     {
-        std::vector<long double> new_coefs {c};
+        std::vector<value_t> new_coefs {c};
         new_coefs.insert(new_coefs.begin() + 1, m_coefs.begin(), m_coefs.end());
 
         for (int i = 1, s = new_coefs.size(); i < s; i++) {
@@ -90,7 +91,7 @@ namespace functions
         }
         return new_coefs;
     }
-    long double Polynomial::integrate(long double a, long double b) const
+    value_t Polynomial::integrate(value_t a, value_t b) const
     {
         const Polynomial antiderivative = integrate();
         return antiderivative(b) - antiderivative(a);
@@ -101,85 +102,85 @@ namespace functions
         return stream << static_cast<std::string>(polynomial);
     }
 
-    std::vector<Func> legendrePolynomials {
-        [](long double x) -> long double {
-            return 1;
-        },
-        [](long double x) -> long double {
-            return x;
-        }};
-
-    void initLegendrePolynomial(int n)
+    value_t evaluateLegendrePolynomial(int n, value_t x)
     {
         assert(n >= 0 || "Cannot construct Legendre polynomial for n < 0");
 
-        if (n >= (int)legendrePolynomials.size()) {
-            initLegendrePolynomial(n - 1);
-            legendrePolynomials.push_back([n](long double x) -> long double {
-                return (2.0 * static_cast<long double>(n) - 1.0) / n * legendrePolynomials[n - 1](x) * x -
-                       (static_cast<long double>(n) - 1.0) / n * legendrePolynomials[n - 2](x);
-            });
+        value_t P0_x = 1.0;
+        value_t P1_x = x;
+
+        if (n == 0) {
+            return P0_x;
         }
+        if (n == 1) {
+            return P1_x;
+        }
+
+        for (value_t i = 2; i <= n; i++) {
+            value_t Pi_x = (2.0 * i - 1.0) / i * P1_x * x - (i - 1.0) / i * P0_x;
+
+            P0_x = P1_x;
+            P1_x = Pi_x;
+        }
+        return P1_x;
     }
 
     Func getLegendrePolynomial(int n)
     {
-        initLegendrePolynomial(n);
-        return legendrePolynomials[n];
+        return [n](value_t x) {
+            return evaluateLegendrePolynomial(n, x);
+        };
     }
 
-    std::vector<long double> getLegendreRoots(int n)
+    std::vector<value_t> getLegendreRoots(int n)
     {
-        initLegendrePolynomial(n);
-        return roots::findAllRootsUsing::tangents(legendrePolynomials[n], -1, 1, 1e-12, 1000);
+        return roots::findAllRootsUsing::tangents(getLegendrePolynomial(n), -1, 1, 1e-15, 1e5);
     }
 
-    long double getGaussCoefficient(int n, long double a, long double b, long double xk)
+    value_t getGaussCoefficient(int n, value_t a, value_t b, value_t xk)
     {
         assert(n > 0 || "Unable to compute gauss coefficients for n <= 0");
-        initLegendrePolynomial(n - 1);
 
-        long double q = (b - a) / 2;
-        long double p = legendrePolynomials[n - 1](xk);
+        value_t q = (b - a) / 2;
+        value_t p = evaluateLegendrePolynomial(n - 1, xk);
         return q * 2.0 * (1.0 - xk * xk) / (n * n * p * p);
     }
 
-    long double getGaussCoefficient(int n, long double xk)
+    value_t getGaussCoefficient(int n, value_t xk)
     {
         return getGaussCoefficient(n, -1, 1, xk);
     }
 
-    std::vector<std::pair<long double, long double>> getGaussCoefficients(int n, long double a, long double b)
+    std::vector<std::pair<value_t, value_t>> getGaussCoefficients(int n, value_t a, value_t b)
     {
-        std::vector<long double> roots = getLegendreRoots(n);
-        std::vector<std::pair<long double, long double>> result;
-        result.reserve(roots.size());
+        std::vector<value_t> roots = getLegendreRoots(n);
+        std::vector<std::pair<value_t, value_t>> result;
 
-        long double q = (b - a) / 2;
-        for (long double root : roots) {
+        value_t q = (b - a) / 2;
+        for (value_t root : roots) {
             result.push_back({a + q * (root + 1), getGaussCoefficient(n, a, b, root)});
         }
 
         return result;
     }
 
-    std::vector<std::pair<long double, long double>> getGaussCoefficients(int n)
+    std::vector<std::pair<value_t, value_t>> getGaussCoefficients(int n)
     {
         return getGaussCoefficients(n, -1, 1);
     }
 
-    std::vector<long double> calculateDerivativeValues(Func f, long double a, long double b, int m)
+    std::vector<value_t> calculateDerivativeValues(Func f, value_t a, value_t b, int m)
     {
         assert(m >= 2 || "Cannot calculate derivative for less than 3 points");
 
-        std::vector<long double> result;
+        std::vector<value_t> result;
         result.reserve(m + 1);
 
-        long double h = (b - a) / m;
+        value_t h = (b - a) / m;
         result.push_back((-3 * f(a) + 4 * f(a + h) - f(a + 2 * h)) / (2 * h));
 
         for (int i = 1; i < m; i++) {
-            long double x = a + i * h;
+            value_t x = a + i * h;
             result.push_back((f(x + h) - f(x - h)) / (2 * h));
         }
 
@@ -187,19 +188,19 @@ namespace functions
 
         return result;
     }
-    std::vector<long double> calculateDerivativeValuesPrecise(Func f, long double a, long double b, int m)
+    std::vector<value_t> calculateDerivativeValuesPrecise(Func f, value_t a, value_t b, int m)
     {
         assert(m >= 3 || "Cannot calculate precise derivative for less than 4 points");
 
-        std::vector<long double> result;
+        std::vector<value_t> result;
         result.reserve(m + 1);
 
-        long double h = (b - a) / m;
+        value_t h = (b - a) / m;
         result.push_back((-11 * f(a) + 18 * f(a + h) - 9 * f(a + 2 * h) + 2 * f(a + 3 * h)) / (6 * h));
         result.push_back((f(a + 2 * h) - f(a)) / (2 * h));
 
         for (int i = 2; i < m - 1; i++) {
-            long double x = a + i * h;
+            value_t x = a + i * h;
             result.push_back((f(x - 2 * h) - 8 * f(x - h) + 8 * f(x + h) - f(x + 2 * h)) / (12 * h));
         }
 
@@ -208,15 +209,15 @@ namespace functions
 
         return result;
     }
-    std::vector<long double> calculateSecondDerivativeValues(Func f, long double a, long double b, int m)
+    std::vector<value_t> calculateSecondDerivativeValues(Func f, value_t a, value_t b, int m)
     {
-        std::vector<long double> result;
+        std::vector<value_t> result;
         result.reserve(m + 1);
         result.push_back(std::nanl("impossible"));
 
-        long double h = (b - a) / m;
+        value_t h = (b - a) / m;
         for (int i = 1; i < m; i++) {
-            long double x = a + i * h;
+            value_t x = a + i * h;
             result.push_back((f(x - h) - 2 * f(x) + f(x + h)) / (h * h));
         }
 
@@ -224,11 +225,11 @@ namespace functions
         return result;
     }
 
-    long double getAbsMaxOnInterval(std::vector<long double> maxima, Func f, long double a, long double b)
+    value_t getAbsMaxOnInterval(std::vector<value_t> maxima, Func f, value_t a, value_t b)
     {
-        long double result = std::max(std::abs(f(a)), std::abs(f(b)));
+        value_t result = std::max(std::abs(f(a)), std::abs(f(b)));
 
-        for (long double maximum : maxima) {
+        for (value_t maximum : maxima) {
             if (a <= maximum && maximum <= b) {
                 result = std::max(result, std::abs(f(maximum)));
             }
@@ -236,30 +237,30 @@ namespace functions
         return result;
     }
 
-    std::vector<std::pair<long double, long double>> getMelerCoefficients(int n)
+    std::vector<std::pair<value_t, value_t>> getMelerCoefficients(int n)
     {
         return getMelerCoefficients(n, -1, 1);
     }
-    std::vector<std::pair<long double, long double>> getMelerCoefficients(int n, long double a, long double b)
+    std::vector<std::pair<value_t, value_t>> getMelerCoefficients(int n, value_t a, value_t b)
     {
-        long double q = (b - a) / 2;
+        value_t q = (b - a) / 2;
 
-        std::vector<std::pair<long double, long double>> result;
+        std::vector<std::pair<value_t, value_t>> result;
         result.reserve(n);
 
-        long double c = q * std::numbers::pi / n;
+        value_t c = q * std::numbers::pi / n;
         for (int k = 1; k <= n; k++) {
-            long double xk = std::cos((2 * k - 1) * std::numbers::pi / (2 * n));
+            value_t xk = std::cos((2 * k - 1) * std::numbers::pi / (2 * n));
             result.push_back({a + q * (xk + 1), c});
         }
 
         return result;
     }
-    long double calculateMelerIntegral(Func f, int n, long double a, long double b)
+    value_t calculateMelerIntegral(Func f, int n, value_t a, value_t b)
     {
-        std::vector<std::pair<long double, long double>> coefs = getMelerCoefficients(n, a, b);
+        std::vector<std::pair<value_t, value_t>> coefs = getMelerCoefficients(n, a, b);
 
-        long double result = 0;
+        value_t result = 0;
         for (auto &&it : coefs) {
             result += it.second * f(it.first);
         }
@@ -267,10 +268,10 @@ namespace functions
         return result;
     }
 
-    long double calculateMoment(Func w, long double a, long double b, int k)
+    value_t calculateMoment(Func w, value_t a, value_t b, int k)
     {
         return calculateIntegralUsing::compound::middleRect(
-            [w, k](long double x) -> long double {
+            [w, k](value_t x) -> value_t {
                 return w(x) * std::pow(x, k);
             },
             a,
@@ -278,62 +279,60 @@ namespace functions
             10000
         );
     }
-    std::vector<long double> calculateMoments(Func w, long double a, long double b, int n)
+    std::vector<value_t> calculateMoments(Func w, value_t a, value_t b, int n)
     {
-        std::vector<long double> result;
+        std::vector<value_t> result;
         result.reserve(n);
         for (int k = 0; k < n; k++) result.push_back(calculateMoment(w, a, b, k));
         return result;
     }
 
-    static std::pair<long double, long double> solveSecondOrderLinearSystem(
-        const std::array<long double, 4> &coefs,
-        const std::pair<long double, long double> &constantTerms
-    )
+    static std::pair<value_t, value_t>
+    solveSecondOrderLinearSystem(const std::array<value_t, 4> &coefs, const std::pair<value_t, value_t> &constantTerms)
     {
-        long double D = coefs[0] * coefs[3] - coefs[1] * coefs[2];
+        value_t D = coefs[0] * coefs[3] - coefs[1] * coefs[2];
 
         if (D == 0) {
             throw std::runtime_error("Attempted to solve a linear system with zero determinant");
         }
 
-        long double D1 = constantTerms.first * coefs[3] - coefs[1] * constantTerms.second;
-        long double D2 = coefs[0] * constantTerms.second - constantTerms.first * coefs[2];
+        value_t D1 = constantTerms.first * coefs[3] - coefs[1] * constantTerms.second;
+        value_t D2 = coefs[0] * constantTerms.second - constantTerms.first * coefs[2];
 
         return {D1 / D, D2 / D};
     }
 
-    Polynomial getOrthogonalPolynomial(Func w, long double a, long double b)
+    Polynomial getOrthogonalPolynomial(Func w, value_t a, value_t b)
     {
-        const std::vector<long double> moments = calculateMoments(w, a, b, 4);
-        const std::pair<long double, long double> coefs =
+        const std::vector<value_t> moments = calculateMoments(w, a, b, 4);
+        const std::pair<value_t, value_t> coefs =
             solveSecondOrderLinearSystem({moments[1], moments[0], moments[2], moments[1]}, {-moments[2], -moments[3]});
 
         return {{coefs.second, coefs.first, 1}};
     }
 
-    std::pair<long double, long double> getOrthogonalPolynomialRoots(Func w, long double a, long double b)
+    std::pair<value_t, value_t> getOrthogonalPolynomialRoots(Func w, value_t a, value_t b)
     {
         const Polynomial polynomial = getOrthogonalPolynomial(w, a, b);
-        long double D = std::sqrt(polynomial[1] * polynomial[1] - 4 * polynomial[0] * polynomial[2]);
+        value_t D = std::sqrt(polynomial[1] * polynomial[1] - 4 * polynomial[0] * polynomial[2]);
         return {(-polynomial[1] - D) / 2, (-polynomial[1] + D) / 2};
     }
 
-    std::vector<std::pair<long double, long double>> getArbitraryWeightCoefs(Func w, long double a, long double b)
+    std::vector<std::pair<value_t, value_t>> getArbitraryWeightCoefs(Func w, value_t a, value_t b)
     {
-        const std::pair<long double, long double> roots = getOrthogonalPolynomialRoots(w, a, b);
-        const std::pair<long double, long double> coefs = solveSecondOrderLinearSystem(
+        const std::pair<value_t, value_t> roots = getOrthogonalPolynomialRoots(w, a, b);
+        const std::pair<value_t, value_t> coefs = solveSecondOrderLinearSystem(
             {1, 1, roots.first, roots.second},
             {calculateMoment(w, a, b, 0), calculateMoment(w, a, b, 1)}
         );
         return {{roots.first, coefs.first}, {roots.second, coefs.second}};
     }
 
-    long double calculateArbitrareWeightIntegral(Func f, Func w, long double a, long double b)
+    value_t calculateArbitrareWeightIntegral(Func f, Func w, value_t a, value_t b)
     {
-        std::vector<std::pair<long double, long double>> coefs = getArbitraryWeightCoefs(w, a, b);
+        std::vector<std::pair<value_t, value_t>> coefs = getArbitraryWeightCoefs(w, a, b);
 
-        long double result = 0;
+        value_t result = 0;
         for (int i = 0, s = coefs.size(); i < s; i++) {
             result += coefs[i].second * f(coefs[i].first);
         }
@@ -342,48 +341,48 @@ namespace functions
 
     namespace calculateIntegralUsing
     {
-        long double leftRect(Func f, long double a, long double b)
+        value_t leftRect(Func f, value_t a, value_t b)
         {
             return (b - a) * f(a);
         }
-        long double middleRect(Func f, long double a, long double b)
+        value_t middleRect(Func f, value_t a, value_t b)
         {
-            long double mid = a + (b - a) / 2;
+            value_t mid = a + (b - a) / 2;
             return (b - a) * f(mid);
         }
-        long double rightRect(Func f, long double a, long double b)
+        value_t rightRect(Func f, value_t a, value_t b)
         {
             return (b - a) * f(b);
         }
-        long double trapezoid(Func f, long double a, long double b)
+        value_t trapezoid(Func f, value_t a, value_t b)
         {
             return (b - a) * (f(a) + f(b)) / 2;
         }
-        long double simpson(Func f, long double a, long double b)
+        value_t simpson(Func f, value_t a, value_t b)
         {
-            long double mid = a + (b - a) / 2;
+            value_t mid = a + (b - a) / 2;
             return (b - a) * (f(a) + 4 * f(mid) + f(b)) / 6;
         }
-        long double threeEights(Func f, long double a, long double b)
+        value_t threeEights(Func f, value_t a, value_t b)
         {
-            long double h = (b - a) / 3;
+            value_t h = (b - a) / 3;
             return (b - a) * (f(a) + 3 * f(a + h) + 3 * f(b - h) + f(b)) / 8;
         }
-        long double gauss(Func f, int n, long double a, long double b)
+        value_t gauss(Func f, int n, value_t a, value_t b)
         {
-            const std::vector<std::pair<long double, long double>> coefs = getGaussCoefficients(n, a, b);
-            long double result = 0;
+            const std::vector<std::pair<value_t, value_t>> coefs = getGaussCoefficients(n, a, b);
+            value_t result = 0;
             for (auto &&it : coefs) {
                 result += it.second * f(it.first);
             }
 
             return result;
         }
-        long double meler(Func f, int n, long double a, long double b)
+        value_t meler(Func f, int n, value_t a, value_t b)
         {
-            std::vector<std::pair<long double, long double>> coefs = getMelerCoefficients(n, a, b);
+            std::vector<std::pair<value_t, value_t>> coefs = getMelerCoefficients(n, a, b);
 
-            long double result = 0;
+            value_t result = 0;
             for (auto &&it : coefs) {
                 result += it.second * f(it.first);
             }
@@ -393,51 +392,46 @@ namespace functions
 
         namespace compound
         {
-            static long double applyCompoundFormula(
-                Func f,
-                long double a,
-                long double b,
-                int m,
-                std::function<long double(Func, long double, long double)> applyFormula
-            )
+            static value_t
+            applyCompoundFormula(Func f, value_t a, value_t b, int m, std::function<value_t(Func, value_t, value_t)> applyFormula)
             {
-                long double result = 0, h = (b - a) / m;
+                value_t result = 0, h = (b - a) / m;
                 for (int i = 1; i <= m; i++) {
                     result += applyFormula(f, a + h * (i - 1), a + h * i);
                 }
                 return result;
             }
 
-            long double leftRect(Func f, long double a, long double b, int m)
+            value_t leftRect(Func f, value_t a, value_t b, int m)
             {
                 return applyCompoundFormula(f, a, b, m, calculateIntegralUsing::leftRect);
             }
-            long double middleRect(Func f, long double a, long double b, int m)
+            value_t middleRect(Func f, value_t a, value_t b, int m)
             {
                 return applyCompoundFormula(f, a, b, m, calculateIntegralUsing::middleRect);
             }
-            long double rightRect(Func f, long double a, long double b, int m)
+            value_t rightRect(Func f, value_t a, value_t b, int m)
             {
                 return applyCompoundFormula(f, a, b, m, calculateIntegralUsing::rightRect);
             }
-            long double trapezoid(Func f, long double a, long double b, int m)
+            value_t trapezoid(Func f, value_t a, value_t b, int m)
             {
                 return applyCompoundFormula(f, a, b, m, calculateIntegralUsing::trapezoid);
             }
-            long double simpson(Func f, long double a, long double b, int m)
+            value_t simpson(Func f, value_t a, value_t b, int m)
             {
                 return applyCompoundFormula(f, a, b, m, calculateIntegralUsing::simpson);
             }
-            long double threeEights(Func f, long double a, long double b, int m)
+            value_t threeEights(Func f, value_t a, value_t b, int m)
             {
                 return applyCompoundFormula(f, a, b, m, calculateIntegralUsing::threeEights);
             }
-            long double gauss(Func f, int n, long double a, long double b, int m, Integrator integrate)
+            value_t gauss(Func f, int n, value_t a, value_t b, int m, Integrator integrate)
             {
-                const std::vector<std::pair<long double, long double>> coefs = getGaussCoefficients(n);
-                return applyCompoundFormula(f, a, b, m, [integrate, &coefs](Func f, long double c, long double d) -> long double {
-                    long double result = 0;
-                    long double q = (d - c) / 2;
+                const std::vector<std::pair<value_t, value_t>> coefs = getGaussCoefficients(n);
+                return applyCompoundFormula(f, a, b, m, [integrate, &coefs](Func f, value_t c, value_t d) -> value_t {
+                    value_t result = 0;
+                    value_t q = (d - c) / 2;
                     for (auto &&it : coefs) {
                         result += q * it.second * f(c + (it.first + 1) * q);
                     }
@@ -454,27 +448,27 @@ namespace functions
     {
         namespace compound
         {
-            long double leftRect(ExtrCalculator getExtr, long double a, long double b, int m)
+            value_t leftRect(ExtrCalculator getExtr, value_t a, value_t b, int m)
             {
                 return (1.0 / 2) * getExtr(a, b) * (b - a) * std::pow((b - a) / m, 1);
             }
-            long double middleRect(ExtrCalculator getExtr, long double a, long double b, int m)
+            value_t middleRect(ExtrCalculator getExtr, value_t a, value_t b, int m)
             {
                 return (1.0 / 2) * getExtr(a, b) * (b - a) * std::pow((b - a) / m, 2);
             }
-            long double rightRect(ExtrCalculator getExtr, long double a, long double b, int m)
+            value_t rightRect(ExtrCalculator getExtr, value_t a, value_t b, int m)
             {
                 return (1.0 / 2) * getExtr(a, b) * (b - a) * std::pow((b - a) / m, 1);
             }
-            long double trapezoid(ExtrCalculator getExtr, long double a, long double b, int m)
+            value_t trapezoid(ExtrCalculator getExtr, value_t a, value_t b, int m)
             {
                 return (1.0 / 12) * getExtr(a, b) * (b - a) * std::pow((b - a) / m, 2);
             }
-            long double simpson(ExtrCalculator getExtr, long double a, long double b, int m)
+            value_t simpson(ExtrCalculator getExtr, value_t a, value_t b, int m)
             {
                 return (1.0 / 24) * getExtr(a, b) * (b - a) * std::pow((b - a) / m, 4);
             }
-            long double threeEights(ExtrCalculator getExtr, long double a, long double b, int m)
+            value_t threeEights(ExtrCalculator getExtr, value_t a, value_t b, int m)
             {
                 return (1.0 / 2880) * getExtr(a, b) * (b - a) * std::pow((b - a) / m, 4);
             }
