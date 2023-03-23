@@ -29,8 +29,8 @@ value_t f(value_t x)
     return 1.0 + x / 3.0;
 }
 
-static auto rightBoundConditions = std::make_pair<value_t, value_t>(1, 0);
-static auto leftBoundConditions = std::make_pair<value_t, value_t>(1, 0);
+static auto right_bound_conditions = std::make_pair<value_t, value_t>(1, 0);
+static auto left_bound_conditions = std::make_pair<value_t, value_t>(1, 0);
 
 int main(int, char **)
 {
@@ -42,7 +42,7 @@ int main(int, char **)
 
     int n = 10;
 
-    auto galerkinSolution = diff::secondOrder::solveUsing::galerkin(
+    auto galerkin_solution = diff::secondOrder::solveUsing::galerkin(
         p,
         q,
         r,
@@ -50,12 +50,12 @@ int main(int, char **)
         math::polynomials::jacobi::getWeightedBasis(1, 1, n),
         math::polynomials::jacobi::getWeightedBasisDerivatives(1, 1, n),
         math::polynomials::jacobi::getWeightedBasisSecondDerivatives(1, 1, n),
-        leftBoundConditions,
-        rightBoundConditions
+        left_bound_conditions,
+        right_bound_conditions
     );
-    io::printFunction(galerkinSolution, "u", -1, 1, 0.2);
+    io::printFunction(galerkin_solution, "u", -1, 1, 0.2);
 
-    auto collocationChebyshevSolution = diff::secondOrder::solveUsing::collocation(
+    auto collocation_chebyshev_solution = diff::secondOrder::solveUsing::collocation(
         p,
         q,
         r,
@@ -64,17 +64,17 @@ int main(int, char **)
         math::polynomials::jacobi::getWeightedBasisDerivatives(1, 1, n),
         math::polynomials::jacobi::getWeightedBasisSecondDerivatives(1, 1, n),
         math::polynomials::chebyshev::getRoots(n),
-        leftBoundConditions,
-        rightBoundConditions
+        left_bound_conditions,
+        right_bound_conditions
     );
-    io::printFunction(collocationChebyshevSolution, "u", -1, 1, 0.2);
+    io::printFunction(collocation_chebyshev_solution, "u", -1, 1, 0.2);
 
-    std::vector<value_t> equidistantPoints;
+    std::vector<value_t> equidistant_points;
     for (int i = 0; i < n; i++) {
-        equidistantPoints.push_back(-1.0 + 2.0 / (value_t)n * (i + 0.5));
+        equidistant_points.push_back(-1.0 + 2.0 / (value_t)n * (i + 0.5));
     }
 
-    auto collocationEquidistantSolution = diff::secondOrder::solveUsing::collocation(
+    auto collocation_equidistant_solution = diff::secondOrder::solveUsing::collocation(
         p,
         q,
         r,
@@ -82,9 +82,9 @@ int main(int, char **)
         math::polynomials::jacobi::getWeightedBasis(1, 1, n),
         math::polynomials::jacobi::getWeightedBasisDerivatives(1, 1, n),
         math::polynomials::jacobi::getWeightedBasisSecondDerivatives(1, 1, n),
-        equidistantPoints,
-        leftBoundConditions,
-        rightBoundConditions
+        equidistant_points,
+        left_bound_conditions,
+        right_bound_conditions
     );
-    io::printFunction(collocationEquidistantSolution, "u", -1, 1, 0.2);
+    io::printFunction(collocation_equidistant_solution, "u", -1, 1, 0.2);
 }

@@ -19,8 +19,8 @@ namespace diff
                 std::vector<simple_function_t> basis,
                 std::vector<simple_function_t> derivatives,
                 std::vector<simple_function_t> secondDerivatives,
-                std::pair<value_t, value_t> leftBoundConditions,
-                std::pair<value_t, value_t> rightBoundConditions
+                std::pair<value_t, value_t> left_bound_conditions,
+                std::pair<value_t, value_t> right_bound_conditions
             );
 
             simple_function_t collocation(
@@ -32,8 +32,8 @@ namespace diff
                 std::vector<simple_function_t> derivatives,
                 std::vector<simple_function_t> secondDerivatives,
                 std::vector<value_t> nodes,
-                std::pair<value_t, value_t> leftBoundConditions,
-                std::pair<value_t, value_t> rightBoundConditions
+                std::pair<value_t, value_t> left_bound_conditions,
+                std::pair<value_t, value_t> right_bound_conditions
             );
         } // namespace solveUsing
     }     // namespace secondOrder

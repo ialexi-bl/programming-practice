@@ -77,13 +77,13 @@ int main()
         }
     }
 
-    auto eigenValues = math::getJacobiEigenvectors(GL, 1e-6);
+    auto eigen_values = math::getJacobiEigenvectors(GL, 1e-6);
 
     std::cout << GL << std::endl;
     // std::cout << math::for_wolfram(GL) << std::endl;
     std::cout << "Eigenvalues:" << std::endl;
 
-    for (auto &[value, vec] : eigenValues) {
+    for (auto &[value, vec] : eigen_values) {
         std::cout << "- " << value << std::endl;
     }
 }
