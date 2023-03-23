@@ -9,13 +9,11 @@
 
 #include "DenseMatrix.hpp"
 
-SparseMatrix::SparseMatrix(int height, int width)
-    : m_width(width), m_height(height)
+SparseMatrix::SparseMatrix(int height, int width) : m_width(width), m_height(height)
 {
 }
 
-SparseMatrix::SparseMatrix(const std::string &filename)
-    : SparseMatrix(std::ifstream(filename))
+SparseMatrix::SparseMatrix(const std::string &filename) : SparseMatrix(std::ifstream(filename))
 {
 }
 
@@ -42,9 +40,9 @@ SparseMatrix::SparseMatrix(std::istream &&stream)
             width = rowWidth;
         } else if (width != rowWidth) {
             throw std::runtime_error(
-                std::string("Expected row ") + std::to_string(rowNumber) +
-                " to contain " + std::to_string(width) + " values, but " +
-                std::to_string(rowWidth) + " were found.");
+                std::string("Expected row ") + std::to_string(rowNumber) + " to contain " + std::to_string(width) +
+                " values, but " + std::to_string(rowWidth) + " were found."
+            );
         }
 
         ++rowNumber;
@@ -52,8 +50,7 @@ SparseMatrix::SparseMatrix(std::istream &&stream)
     }
     if (stream.fail() && stream.peek() != EOF) {
         char c = stream.peek();
-        throw std::runtime_error(std::string("Unexpected token '") + c +
-                                 "' while reading matrix.");
+        throw std::runtime_error(std::string("Unexpected token '") + c + "' while reading matrix.");
     }
     if (width < 0) {
         throw std::runtime_error("Stream is empty or doesn't exist");
@@ -64,16 +61,13 @@ SparseMatrix::SparseMatrix(std::istream &&stream)
     initFromMap(values);
 }
 
-SparseMatrix::SparseMatrix(
-    int height, int width,
-    const std::map<std::pair<int, int>, matrix_element_t> &values)
+SparseMatrix::SparseMatrix(int height, int width, const std::map<std::pair<int, int>, matrix_element_t> &values)
     : m_width(width), m_height(height)
 {
     initFromMap(values);
 }
 
-void SparseMatrix::initFromMap(
-    const std::map<std::pair<int, int>, matrix_element_t> &values)
+void SparseMatrix::initFromMap(const std::map<std::pair<int, int>, matrix_element_t> &values)
 {
     m_rows.reserve(m_height + 1);
 
@@ -112,8 +106,7 @@ int SparseMatrix::getHeight() const
     return m_height;
 }
 
-void SparseMatrix::multiply(const DenseMatrix &m, int from, int to,
-                            DenseMatrix &result) const
+void SparseMatrix::multiply(const DenseMatrix &m, int from, int to, DenseMatrix &result) const
 {
     for (int r = from; r < to; r++) {
         for (int i = m_rows[r], l = m_rows[r + 1]; i < l; i++) {
@@ -124,14 +117,12 @@ void SparseMatrix::multiply(const DenseMatrix &m, int from, int to,
     }
 }
 
-void SparseMatrix::multiply(const SparseMatrix &m, int from, int to,
-                            SparseMatrix &result) const
+void SparseMatrix::multiply(const SparseMatrix &m, int from, int to, SparseMatrix &result) const
 {
     std::map<std::pair<int, int>, matrix_element_t> values;
     for (int r = from; r < to; r++) {
         for (int i = m_rows[r], l = m_rows[r + 1]; i < l; i++) {
-            for (int j = m.m_rows[m_cols[i]], k = m.m_rows[m_cols[i] + 1];
-                 j < k; j++) {
+            for (int j = m.m_rows[m_cols[i]], k = m.m_rows[m_cols[i] + 1]; j < k; j++) {
                 matrix_element_t value = m_values[i] * m.m_values[j];
 
                 std::pair key(r - from, m.m_cols[j]);
@@ -161,8 +152,7 @@ std::unique_ptr<Matrix> SparseMatrix::multiply(const Matrix &m) const
 std::unique_ptr<DenseMatrix> SparseMatrix::multiply(const DenseMatrix &m) const
 {
     if (m_width != m.getHeight()) {
-        throw std::runtime_error(
-            "Impossible to multiply matrices of such dimensions");
+        throw std::runtime_error("Impossible to multiply matrices of such dimensions");
     }
 
     DenseMatrix *result = new DenseMatrix(m_height, m.getWidth());
@@ -170,12 +160,10 @@ std::unique_ptr<DenseMatrix> SparseMatrix::multiply(const DenseMatrix &m) const
 
     return std::unique_ptr<DenseMatrix>(result);
 }
-std::unique_ptr<SparseMatrix>
-SparseMatrix::multiply(const SparseMatrix &m) const
+std::unique_ptr<SparseMatrix> SparseMatrix::multiply(const SparseMatrix &m) const
 {
     if (m_width != m.m_height) {
-        throw std::runtime_error(
-            "Impossible to multiply matrices of such dimensions");
+        throw std::runtime_error("Impossible to multiply matrices of such dimensions");
     }
 
     SparseMatrix *result = new SparseMatrix(m_height, m.getWidth());
@@ -197,57 +185,51 @@ std::unique_ptr<Matrix> SparseMatrix::dmultiply(const Matrix &m) const
 std::unique_ptr<DenseMatrix> SparseMatrix::dmultiply(const DenseMatrix &m) const
 {
     if (m_width != m.getHeight()) {
-        throw std::runtime_error(
-            "Impossible to multiply matrices of such dimensions");
+        throw std::runtime_error("Impossible to multiply matrices of such dimensions");
     }
 
     std::array<std::thread, MULT_THREADS_COUNT> threads;
     int rowsPerThread = m_height / MULT_THREADS_COUNT;
 
     DenseMatrix *result = new DenseMatrix(m_height, m.getWidth());
-    for (int i = 0; i < MULT_THREADS_COUNT; i++) {
+    for (unsigned int i = 0; i < MULT_THREADS_COUNT; i++) {
         threads[i] = std::thread(
-            [=, &m](int threadNumber) {
+            [=, this, &m](int threadNumber) {
                 int from = threadNumber * rowsPerThread;
-                int to = threadNumber == MULT_THREADS_COUNT - 1
-                             ? m_height
-                             : (threadNumber + 1) * rowsPerThread;
+                int to = threadNumber == MULT_THREADS_COUNT - 1 ? m_height : (threadNumber + 1) * rowsPerThread;
                 multiply(m, from, to, *result);
             },
-            i);
+            i
+        );
     }
 
-    for (int i = 0; i < MULT_THREADS_COUNT; i++) {
+    for (unsigned int i = 0; i < MULT_THREADS_COUNT; i++) {
         threads[i].join();
     }
 
     return std::unique_ptr<DenseMatrix>(result);
 }
-std::unique_ptr<SparseMatrix>
-SparseMatrix::dmultiply(const SparseMatrix &m) const
+std::unique_ptr<SparseMatrix> SparseMatrix::dmultiply(const SparseMatrix &m) const
 {
     if (m_width != m.m_height) {
-        throw std::runtime_error(
-            "Impossible to multiply matrices of such dimensions");
+        throw std::runtime_error("Impossible to multiply matrices of such dimensions");
     }
 
     std::array<std::thread, MULT_THREADS_COUNT> threads;
     std::array<SparseMatrix *, MULT_THREADS_COUNT> matrices;
     int rowsPerThread = m_height / MULT_THREADS_COUNT;
 
-    for (int i = 0; i < MULT_THREADS_COUNT; i++) {
+    for (unsigned int i = 0; i < MULT_THREADS_COUNT; i++) {
         threads[i] = std::thread(
-            [=, &m, &matrices](int threadNumber) {
+            [=, this, &m, &matrices](int threadNumber) {
                 int from = threadNumber * rowsPerThread;
-                int to = threadNumber == MULT_THREADS_COUNT - 1
-                             ? m_height
-                             : (threadNumber + 1) * rowsPerThread;
+                int to = threadNumber == MULT_THREADS_COUNT - 1 ? m_height : (threadNumber + 1) * rowsPerThread;
 
-                SparseMatrix *matrix = matrices[threadNumber] =
-                    new SparseMatrix(to - from, m.m_width);
+                SparseMatrix *matrix = matrices[threadNumber] = new SparseMatrix(to - from, m.m_width);
                 multiply(m, from, to, *matrix);
             },
-            i);
+            i
+        );
     }
 
     for (auto &&thread : threads) {
@@ -262,9 +244,7 @@ SparseMatrix::dmultiply(const SparseMatrix &m) const
     return std::unique_ptr<SparseMatrix>(result);
 }
 
-SparseMatrix::SparseMatrix(
-    int height, int width,
-    const std::array<SparseMatrix *, MULT_THREADS_COUNT> &matrices)
+SparseMatrix::SparseMatrix(int height, int width, const std::array<SparseMatrix *, MULT_THREADS_COUNT> &matrices)
     : m_width(width), m_height(height)
 {
     int nnz = 0;
@@ -276,12 +256,9 @@ SparseMatrix::SparseMatrix(
 
     int acc = 0;
     for (SparseMatrix *matrix : matrices) {
-        std::copy(matrix->m_cols.begin(), matrix->m_cols.end(),
-                  std::back_inserter(m_cols));
-        std::copy(matrix->m_values.begin(), matrix->m_values.end(),
-                  std::back_inserter(m_values));
-        for (auto it = matrix->m_rows.begin() + 1, end = matrix->m_rows.end();
-             it < end; it++) {
+        std::copy(matrix->m_cols.begin(), matrix->m_cols.end(), std::back_inserter(m_cols));
+        std::copy(matrix->m_values.begin(), matrix->m_values.end(), std::back_inserter(m_values));
+        for (auto it = matrix->m_rows.begin() + 1, end = matrix->m_rows.end(); it < end; it++) {
             m_rows.push_back(*it + acc);
         }
 

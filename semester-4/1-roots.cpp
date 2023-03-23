@@ -1,4 +1,4 @@
-#include "lib/roots.hpp"
+#include "../lib/roots.hpp"
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -40,11 +40,10 @@ int main()
     std::cout << "Введите требуемую точность: " << std::endl;
     std::cin >> epsilon;
 
-    auto intervalsWithRoots = roots::getIntervalsWithRoots(f, a, b);
+    auto intervalsWithRoots = math::getIntervalsWithRoots(f, a, b);
     int intervalsCount = intervalsWithRoots.size();
 
-    std::cout << std::endl
-              << "Найдено " << intervalsCount << " отрезков с корнями";
+    std::cout << std::endl << "Найдено " << intervalsCount << " отрезков с корнями";
     if (!intervalsCount) {
         std::cout << std::endl;
         return 0;
@@ -52,8 +51,7 @@ int main()
 
     std::cout << ":" << std::endl;
     for (int i = 0; i < intervalsCount; i++) {
-        std::cout << (i + 1) << ". [" << intervalsWithRoots[i].first << ", "
-                  << intervalsWithRoots[i].second << "]" << std::endl;
+        std::cout << (i + 1) << ". [" << intervalsWithRoots[i].first << ", " << intervalsWithRoots[i].second << "]" << std::endl;
     }
 
     int i;
@@ -65,18 +63,14 @@ int main()
     long double a0 = intervalsWithRoots[i].first;
     long double b0 = intervalsWithRoots[i].second;
 
-    std::cout << std::endl
-              << "Интервал " << (i + 1) << " – [" << a0 << ", " << b0 << "]"
-              << std::endl;
+    std::cout << std::endl << "Интервал " << (i + 1) << " – [" << a0 << ", " << b0 << "]" << std::endl;
 
-    roots::findRootUsing::bisection(f, a0, b0, epsilon, true);
+    math::findRootUsing::bisection(f, a0, b0, epsilon, true);
 
-    roots::findRootUsing::newton(f, f_prime, f_prime_prime, a0, b0, epsilon,
-                                 true);
+    math::findRootUsing::newton(f, f_prime, f_prime_prime, a0, b0, epsilon, true);
 
-    roots::findRootUsing::newtonModified(f, f_prime, f_prime_prime, a0, b0,
-                                         epsilon, true);
+    math::findRootUsing::newtonModified(f, f_prime, f_prime_prime, a0, b0, epsilon, true);
 
-    roots::findRootUsing::tangents(f, a0, b0, epsilon, true);
+    math::findRootUsing::tangents(f, a0, b0, epsilon, true);
     // }
 }

@@ -9,7 +9,7 @@ static constexpr double EPSILON = 1e-3;
 static math::matrix_value vectorNorm(const math::Matrix &m)
 {
     math::matrix_value result = 0;
-    for (int i = 0; i < m.m_values.size(); i++) {
+    for (size_t i = 0; i < m.m_values.size(); i++) {
         result += std::abs(m.m_values[i]);
     }
     return result;
@@ -23,7 +23,7 @@ static std::pair<math::Matrix, math::Matrix> transformSystem(const math::Matrix 
 
     math::Matrix E = math::Matrix::id(A.m_height);
     math::Matrix Di(A.m_height, A.m_width);
-    for (int i = 0; i < A.m_height; i++) {
+    for (size_t i = 0; i < A.m_height; i++) {
         Di(i, i) = 1 / A(i, i);
     }
 
@@ -50,7 +50,7 @@ static math::matrix_value error(const math::vector &solution, const math::vector
 {
     math::matrix_value error = 0;
 
-    for (int i = 0; i < solution.size(); i++) {
+    for (size_t i = 0; i < solution.size(); i++) {
         error += std::abs(realSolution[i] - solution[i]);
     }
 
@@ -78,16 +78,16 @@ static math::vector seidel(const math::Matrix &H, const math::Matrix &g, const m
 {
     auto result = g.m_values;
 
-    int k = -1;
+    size_t k = -1;
     while (++k, error(result, realSolution) > EPSILON) {
         std::vector<math::matrix_value> next(g.m_height);
 
-        for (int i = 0; i < g.m_height; i++) {
+        for (size_t i = 0; i < g.m_height; i++) {
             next[i] = g(i, 0);
-            for (int j = 0; j < i; j++) {
+            for (size_t j = 0; j < i; j++) {
                 next[i] += H(i, j) * next[j];
             }
-            for (int j = i; j < g.m_height; j++) {
+            for (size_t j = i; j < g.m_height; j++) {
                 next[i] += H(i, j) * result[j];
             }
         }
@@ -114,12 +114,12 @@ relaxation(const math::Matrix &H, const math::Matrix &g, const math::vector &rea
     while (++k, error(result, realSolution) > EPSILON) {
         std::vector<math::matrix_value> next(g.m_height);
 
-        for (int i = 0; i < g.m_height; i++) {
+        for (size_t i = 0; i < g.m_height; i++) {
             next[i] = g(i, 0) - result[i];
-            for (int j = 0; j < i; j++) {
+            for (size_t j = 0; j < i; j++) {
                 next[i] += H(i, j) * next[j];
             }
-            for (int j = i + 1; j < g.m_height; j++) {
+            for (size_t j = i + 1; j < g.m_height; j++) {
                 next[i] += H(i, j) * result[j];
             }
 

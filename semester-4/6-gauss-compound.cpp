@@ -1,5 +1,5 @@
-#include "lib/functions.hpp"
-#include "lib/io.hpp"
+#include "../lib/functions.hpp"
+#include "../lib/io.hpp"
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -58,18 +58,18 @@ int main()
 
     {
         std::cout << "--- Интегрирование с помощью КФ типа Гаусса с двумя узлами ---" << std::endl;
-        std::vector<long double> moments = functions::calculateMoments(w::evaluate, a, b, 4);
+        std::vector<long double> moments = math::calculateMoments(w::evaluate, a, b, 4);
         std::cout << "> Моменты весовой функции: " << std::endl;
         io::printArrayOfVariables(moments, 0, "μ");
 
-        functions::Polynomial orthogonalPolynomial = functions::getOrthogonalPolynomial(w::evaluate, a, b);
+        math::polynomials::Polynomial orthogonalPolynomial = math::getOrthogonalPolynomial(w::evaluate, a, b);
         std::cout << std::endl << "> Ортогональный многочлен: " << orthogonalPolynomial << std::endl;
 
-        std::vector<std::pair<long double, long double>> coefs = functions::getArbitraryWeightCoefs(w::evaluate, a, b);
+        std::vector<std::pair<long double, long double>> coefs = math::getArbitraryWeightCoefs(w::evaluate, a, b);
         std::cout << "> Узлы и коэффициенты формулы:" << std::endl;
         io::printNodesAndCoefs(coefs);
 
-        long double integral = functions::calculateArbitrareWeightIntegral(f::evaluate, w::evaluate, a, b);
+        long double integral = math::calculateArbitraryWeightIntegral(f::evaluate, w::evaluate, a, b);
         std::cout << "> Приближённое значение интеграла: " << integral << std::endl
                   << "> Точное значение:                 " << weighted_f::integrate(a, b) << std::endl
                   << "> Погрешность:                     " << std::abs(integral - weighted_f::integrate(a, b)) << std::endl;
@@ -84,13 +84,13 @@ int main()
 
     do {
         {
-            const std::vector<std::pair<long double, long double>> coefs = functions::getGaussCoefficients(n, 0.05, 0.1);
+            const std::vector<std::pair<long double, long double>> coefs = math::getGaussCoefficients(n, 0.05, 0.1);
             std::cout << "> Узлы и коэффициенты исходной КФ Гаусса:" << std::endl;
             io::printNodesAndCoefs(coefs);
             std::cout << std::endl;
 
             long double integral =
-                functions::calculateIntegralUsing::compound::gauss(weighted_f::evaluate, n, a, b, m, weighted_f::integrate);
+                math::calculateIntegralUsing::compound::gauss(weighted_f::evaluate, n, a, b, m, weighted_f::integrate);
             std::cout << "> Приближённое значение интеграла: " << integral << std::endl
                       << "> Погрешность:                     " << std::abs(integral - weighted_f::integrate(a, b)) << std::endl;
         }

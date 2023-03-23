@@ -25,10 +25,8 @@ class DenseMatrix : public Matrix
     virtual int getHeight() const override;
 
   private:
-    void multiply(const DenseMatrix &m, int from, int to,
-                  DenseMatrix &result) const;
-    void multiply(const SparseMatrix &m, int from, int to,
-                  DenseMatrix &result) const;
+    void multiply(const DenseMatrix &m, int from, int to, DenseMatrix &result) const;
+    void multiply(const SparseMatrix &m, int from, int to, DenseMatrix &result) const;
 
   public:
     virtual std::unique_ptr<Matrix> multiply(const Matrix &m) const override;

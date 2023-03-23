@@ -31,14 +31,14 @@ static value_t get_norm_coefficient(int a, int b, int n)
 static simple_function_t getBasisElement(int a, int b, int n)
 {
     return [=](value_t x) {
-        return get_norm_coefficient(a, b, n) * (1.0 - x * x) * polynomials::jacobi::evaluate(a, b, n, x);
+        return get_norm_coefficient(a, b, n) * (1.0 - x * x) * math::polynomials::jacobi::evaluate(a, b, n, x);
     };
 }
 static simple_function_t getBasisElementDerivative(int a, int b, int n)
 {
     return [=](value_t x) {
-        return get_norm_coefficient(a, b, n) * (-2.0 * x * polynomials::jacobi::evaluate(a, b, n, x) +
-                                                (1.0 - x * x) * polynomials::jacobi::evaluateDerivative(a, b, n, x));
+        return get_norm_coefficient(a, b, n) * (-2.0 * x * math::polynomials::jacobi::evaluate(a, b, n, x) +
+                                                (1.0 - x * x) * math::polynomials::jacobi::evaluateDerivative(a, b, n, x));
     };
 }
 
@@ -67,7 +67,7 @@ int main()
     auto energy_scalar_product = [](simple_function_t y, simple_function_t y_prime, simple_function_t z, simple_function_t z_prime
                                  ) {
         using namespace math;
-        return functions::calculateIntegralUsing::compound::middleRect(p * y_prime * z_prime + q * y * z, -1, 1, 100);
+        return math::calculateIntegralUsing::compound::middleRect(p * y_prime * z_prime + q * y * z, -1, 1, 100);
     };
 
     math::Matrix GL(n, n);

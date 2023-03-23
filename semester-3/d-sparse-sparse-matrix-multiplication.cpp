@@ -8,11 +8,15 @@ int main()
 {
     std::cout << "Test #1" << std::endl;
     testMultiplication<SparseMatrix, SparseMatrix, SparseMatrix, true>(
-        "./test/matrices/sparse-1.txt", "./test/matrices/sparse-2.txt",
-        "./test/matrices/sparse-12.txt");
+        "./test/matrices/sparse-1.txt",
+        "./test/matrices/sparse-2.txt",
+        "./test/matrices/sparse-12.txt"
+    );
 
     std::cout << "Test #2" << std::endl;
     testMultiplication<SparseMatrix, SparseMatrix, SparseMatrix, true>(
-        "./test/matrices/sparse-2.txt", "./test/matrices/sparse-3.txt",
-        "./test/matrices/sparse-23.txt");
+        "./test/matrices/sparse-2.txt",
+        "./test/matrices/sparse-3.txt",
+        "./test/matrices/sparse-23.txt"
+    );
 }

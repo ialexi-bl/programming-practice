@@ -6,10 +6,10 @@
 
 namespace polynomials
 {
-    InterpolationTable
+    interpolation_table_t
     getInterpolationTable(const std::function<long double(long double)> &f, long double m, long double a, long double b)
     {
-        InterpolationTable result;
+        interpolation_table_t result;
         result.reserve(m + 1);
 
         long double h = (b - a) / m;
@@ -22,16 +22,16 @@ namespace polynomials
         return result;
     }
 
-    InterpolationTable invertInterpolationTable(const InterpolationTable &table)
+    interpolation_table_t invertInterpolationTable(const interpolation_table_t &table)
     {
-        InterpolationTable result;
+        interpolation_table_t result;
         for (auto &&pair : table) {
             result.push_back({pair.second, pair.first});
         }
         return result;
     }
 
-    void sortInterpolationTable(InterpolationTable &table, long double x)
+    void sortInterpolationTable(interpolation_table_t &table, long double x)
     {
         std::sort(
             table.begin(),
@@ -42,7 +42,7 @@ namespace polynomials
         );
     }
 
-    static long double getLagrangeCoef(const InterpolationTable &table, int n, int k, long double x)
+    static long double getLagrangeCoef(const interpolation_table_t &table, int n, int k, long double x)
     {
         long double numerator = 1, denominator = 1;
         long double x_k = table[k].first;
@@ -55,7 +55,7 @@ namespace polynomials
         return numerator / denominator;
     }
 
-    std::function<long double(long double)> getLagrangePolynomial(const InterpolationTable &table, int n)
+    std::function<long double(long double)> getLagrangePolynomial(const interpolation_table_t &table, int n)
     {
         return [&table, n](long double x) -> long double {
             long double result = 0;
@@ -69,7 +69,7 @@ namespace polynomials
     namespace interpolateUsing
     {
 
-        long double lagrange(const InterpolationTable &table, int n, long double x)
+        long double lagrange(const interpolation_table_t &table, int n, long double x)
         {
             long double result = 0;
             for (int i = 0; i <= n; i++) {
@@ -78,7 +78,7 @@ namespace polynomials
             return result;
         }
 
-        long double newton(const InterpolationTable &table, int n, long double x)
+        long double newton(const interpolation_table_t &table, int n, long double x)
         {
             long double result = 0, coef = 1;
             std::vector<long double> differences;

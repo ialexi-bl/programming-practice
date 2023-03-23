@@ -35,8 +35,7 @@ std::ostream &operator<<(std::ostream &stream, const Matrix &matrix)
 std::unique_ptr<Matrix> Matrix::add(const Matrix &matrix) const
 {
     if (matrix.getHeight() != getHeight() || matrix.getWidth() != getWidth()) {
-        throw std::runtime_error(
-            "Impossible to add matrices of different dimensions");
+        throw std::runtime_error("Impossible to add matrices of different dimensions");
     }
 
     DenseMatrix *result = new DenseMatrix(getHeight(), getWidth());
@@ -84,8 +83,7 @@ bool operator==(const DenseMatrix &m1, const DenseMatrix &m2)
 
 bool operator==(const SparseMatrix &m1, const SparseMatrix &m2)
 {
-    if (m1.getWidth() != m2.getWidth() || m1.getHeight() != m2.getHeight() ||
-        m1.m_values.size() != m2.m_values.size()) {
+    if (m1.getWidth() != m2.getWidth() || m1.getHeight() != m2.getHeight() || m1.m_values.size() != m2.m_values.size()) {
         return false;
     }
     for (int i = 0, m = m1.m_rows.size(); i < m; i++) {
@@ -94,8 +92,7 @@ bool operator==(const SparseMatrix &m1, const SparseMatrix &m2)
         }
     }
     for (int i = 0, m = m1.m_cols.size(); i < m; i++) {
-        if (m1.m_cols[i] != m2.m_cols[i] ||
-            std::abs(m1.m_values[i] - m2.m_values[i]) > 1e-6) {
+        if (m1.m_cols[i] != m2.m_cols[i] || std::abs(m1.m_values[i] - m2.m_values[i]) > 1e-6) {
             return false;
         }
     }

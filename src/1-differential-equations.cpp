@@ -47,9 +47,9 @@ int main(int, char **)
         q,
         r,
         f,
-        polynomials::jacobi::getWeightedBasis(1, 1, n),
-        polynomials::jacobi::getWeightedBasisDerivatives(1, 1, n),
-        polynomials::jacobi::getWeightedBasisSecondDerivatives(1, 1, n),
+        math::polynomials::jacobi::getWeightedBasis(1, 1, n),
+        math::polynomials::jacobi::getWeightedBasisDerivatives(1, 1, n),
+        math::polynomials::jacobi::getWeightedBasisSecondDerivatives(1, 1, n),
         leftBoundConditions,
         rightBoundConditions
     );
@@ -60,10 +60,10 @@ int main(int, char **)
         q,
         r,
         f,
-        polynomials::jacobi::getWeightedBasis(1, 1, n),
-        polynomials::jacobi::getWeightedBasisDerivatives(1, 1, n),
-        polynomials::jacobi::getWeightedBasisSecondDerivatives(1, 1, n),
-        polynomials::chebyshev::getRoots(n),
+        math::polynomials::jacobi::getWeightedBasis(1, 1, n),
+        math::polynomials::jacobi::getWeightedBasisDerivatives(1, 1, n),
+        math::polynomials::jacobi::getWeightedBasisSecondDerivatives(1, 1, n),
+        math::polynomials::chebyshev::getRoots(n),
         leftBoundConditions,
         rightBoundConditions
     );
@@ -79,9 +79,9 @@ int main(int, char **)
         q,
         r,
         f,
-        polynomials::jacobi::getWeightedBasis(1, 1, n),
-        polynomials::jacobi::getWeightedBasisDerivatives(1, 1, n),
-        polynomials::jacobi::getWeightedBasisSecondDerivatives(1, 1, n),
+        math::polynomials::jacobi::getWeightedBasis(1, 1, n),
+        math::polynomials::jacobi::getWeightedBasisDerivatives(1, 1, n),
+        math::polynomials::jacobi::getWeightedBasisSecondDerivatives(1, 1, n),
         equidistantPoints,
         leftBoundConditions,
         rightBoundConditions

@@ -15,17 +15,17 @@ namespace io
         std::vector<std::pair<long double, long double>> table,
         std::string header1,
         std::string header2,
-        int indent = 0,
-        int count = std::numeric_limits<int>::max()
+        size_t indent = 0,
+        size_t count = std::numeric_limits<int>::max()
     );
-    void printTable(std::vector<std::vector<long double>> table, std::vector<std::string> headers, int indent = 0);
+    void printTable(std::vector<std::vector<long double>> table, std::vector<std::string> headers, size_t indent = 0);
 
     void printTable(
-        int width,
-        int height,
+        size_t width,
+        size_t height,
         std::vector<std::string> headers,
-        std::function<long double(int row, int col)> getElement,
-        int indent = 0
+        std::function<long double(size_t row, size_t col)> get_element,
+        size_t indent = 0
     );
 
     void printFunction(
@@ -36,10 +36,10 @@ namespace io
         long double step
     );
 
-    void printArrayOfVariables(const std::vector<long double> &coefs, int startFrom = 1, std::string variable = "x");
+    void printArrayOfVariables(const std::vector<long double> &coefs, size_t start_from = 1, std::string variable = "x");
     void printNodesAndCoefs(
         const std::vector<std::pair<long double, long double>> &coefs,
-        int startFrom = 1,
+        size_t start_from = 1,
         std::string variable = "x",
         std::string coef = "A"
     );

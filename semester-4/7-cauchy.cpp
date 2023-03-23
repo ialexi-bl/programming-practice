@@ -1,6 +1,6 @@
+#include "../lib/functions.hpp"
+#include "../lib/io.hpp"
 #include "lib/differential-equations.hpp"
-#include "lib/functions.hpp"
-#include "lib/io.hpp"
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
@@ -16,7 +16,7 @@ long double f(long double x, long double y)
 int x0 = 0;
 namespace solution
 {
-    functions::Polynomial taylor {{1, -1, 0.75, -0.25, 0.0625}};
+    math::polynomials::Polynomial taylor {{1, -1, 0.75, -0.25, 0.0625}};
 
     long double evaluate(long double x)
     {
@@ -155,10 +155,13 @@ int main()
             {"Метод Эйлера:          ", std::abs(realValue - euler[n + 2])},
             {"Метод Эйлера 1:        ", std::abs(realValue - euler1[n + 2])},
             {"Метод Эйлера 2:        ", std::abs(realValue - euler2[n + 2])}};
-        std::sort(errors.begin(), errors.end(),
-                  [](const std::pair<std::string, long double> &a, const std::pair<std::string, long double> &b) {
-                      return a.second < b.second;
-                  });
+        std::sort(
+            errors.begin(),
+            errors.end(),
+            [](const std::pair<std::string, long double> &a, const std::pair<std::string, long double> &b) {
+                return a.second < b.second;
+            }
+        );
 
         std::cout << std::endl << "> Погрешность последнего значения" << std::endl;
         for (auto &&it : errors) {

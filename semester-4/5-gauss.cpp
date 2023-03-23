@@ -1,12 +1,12 @@
-#include "lib/functions.hpp"
-#include "lib/io.hpp"
-#include "lib/roots.hpp"
+#include "../lib/functions.hpp"
+#include "../lib/io.hpp"
+#include "../lib/roots.hpp"
 #include <cmath>
 #include <iomanip>
 #include <iostream>
 #include <string>
 
-functions::Polynomial polynomials[] = {
+math::polynomials::Polynomial polynomials[] = {
     {{}},
     {{1.0l, 5.0l}},
     {{1.0l, 2.0l, -24.0l, 3.0l}},
@@ -16,7 +16,23 @@ functions::Polynomial polynomials[] = {
     {{1.0l, -15.0l, 0.0l, -30.0l, 3.0l, -15.0l, 0.0l, -30.0l, 0.0, -108.0l, 0.05l, 0.009l}},
     {{1.0l, -15.0l, 0.0l, -30.0l, 3.0l, -15.0l, 0.0l, -30.0l, 0.0, -108.0l, 0.05l, 0.009l, 0.0l, -0.4l}},
     {{1.0l, -15.0l, 0.0l, -30.0l, 3.0l, -15.0l, 0.0l, -30.0l, 0.0, -108.0l, 0.05l, 0.009l, 0.0l, -0.4l, 9.0l, -7.0l}},
-    {{1.0l, -15.0l, 0.0l, -30.0l, 3.0l, -15.0l, 0.0l, -30.0l, 0.0, -108.0l, 0.05l, 0.009l, 0.0l, -0.4l, 9.0l, -7.0l, -9.0l,
+    {{1.0l,
+      -15.0l,
+      0.0l,
+      -30.0l,
+      3.0l,
+      -15.0l,
+      0.0l,
+      -30.0l,
+      0.0,
+      -108.0l,
+      0.05l,
+      0.009l,
+      0.0l,
+      -0.4l,
+      9.0l,
+      -7.0l,
+      -9.0l,
       28.0l}}};
 
 namespace f
@@ -54,7 +70,7 @@ int main()
     std::cout << std::setprecision(30);
 
     for (int n = 1; n <= 8; n++) {
-        const std::vector<std::pair<long double, long double>> coefs = functions::getGaussCoefficients(n, -1, 1);
+        const std::vector<std::pair<long double, long double>> coefs = math::getGaussCoefficients(n, -1, 1);
 
         std::cout << "Коэффициенты формулы Гаусса для n = " << n << ":" << std::endl;
         io::printNodesAndCoefs(coefs);
@@ -63,9 +79,9 @@ int main()
 
     std::cout << std::endl;
 
-    for (int n : std::vector{3, 5, 8}) {
+    for (int n : std::vector {3, 5, 8}) {
         const long double real = polynomials[n].integrate(-1, 1);
-        const long double approximate = functions::calculateIntegralUsing::gauss(polynomials[n], n, -1, 1);
+        const long double approximate = math::calculateIntegralUsing::gauss(polynomials[n], n, -1, 1);
         std::cout << "Проверка на многочлене степени " << (2 * n - 1) << std::endl
                   << polynomials[n] << std::endl
                   << "- Точное значение:       " << real << std::endl
@@ -78,13 +94,13 @@ int main()
 
     {
         long double a = 0, b = 1;
-        std::vector<int> n_values{4, 6, 8};
+        std::vector<int> n_values {4, 6, 8};
         do {
             std::cout << std::endl;
             for (int n : n_values) {
                 const long double real = f::integrate(a, b);
-                const long double approximate = functions::calculateIntegralUsing::gauss(f::evaluate, n, a, b);
-                const std::vector<std::pair<long double, long double>> coefs = functions::getGaussCoefficients(n, a, b);
+                const long double approximate = math::calculateIntegralUsing::gauss(f::evaluate, n, a, b);
+                const std::vector<std::pair<long double, long double>> coefs = math::getGaussCoefficients(n, a, b);
 
                 std::cout << "Интеграл функции " << f::str << " от " << a << " до " << b << " с числом узлов " << n << ":"
                           << std::endl;
@@ -133,12 +149,12 @@ int main()
             }
 
             std::cout << std::endl;
-            std::vector<std::pair<long double, long double>> melerCoefs = functions::getMelerCoefficients(n);
+            std::vector<std::pair<long double, long double>> melerCoefs = math::getMelerCoefficients(n);
             std::cout << "> Коэффициенты формулы Мелера:" << std::endl;
             io::printNodesAndCoefs(melerCoefs);
 
-            std::cout << "> Приближённое значение интеграла: "
-                      << functions::calculateIntegralUsing::meler(f_meler::evaluate, n, -1, 1) << std::endl
+            std::cout << "> Приближённое значение интеграла: " << math::calculateIntegralUsing::meler(f_meler::evaluate, n, -1, 1)
+                      << std::endl
                       << std::endl;
         } while (true);
     }

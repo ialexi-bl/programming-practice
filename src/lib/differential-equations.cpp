@@ -14,7 +14,7 @@ namespace diff
         {
             static value_t productL2(simple_function_t y, simple_function_t z)
             {
-                return functions::calculateIntegralUsing::compound::middleRect(
+                return math::calculateIntegralUsing::compound::middleRect(
                     [=](value_t x) -> value_t {
                         return y(x) * z(x);
                     },

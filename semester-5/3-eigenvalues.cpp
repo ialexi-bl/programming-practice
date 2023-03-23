@@ -16,7 +16,7 @@ std::tuple<math::matrix_value, math::vector, int> getPowerEigenvector(const math
     math::vector Y(A.m_height);
     math::matrix_value l = 0;
 
-    for (int i = 0; i < A.m_height; i++) {
+    for (size_t i = 0; i < A.m_height; i++) {
         Y[i] = A.m_height * 2 - i;
     }
 
@@ -40,7 +40,7 @@ std::tuple<math::matrix_value, math::vector, int> getScalarEigenvector(const mat
     math::vector *Y2 = &_Y2;
     math::matrix_value l = 0;
 
-    for (int i = 0; i < A.m_height; i++) {
+    for (size_t i = 0; i < A.m_height; i++) {
         (*Y1)[i] = A.m_height * 2 - i;
     }
 
@@ -108,10 +108,10 @@ int main()
 
     std::cout << "Matrix:" << std::endl << m << std::endl;
 
-    int jacobiSteps;
+    size_t jacobiSteps;
     auto jacobiResult = getJacobiEigenvectors(m, EPSILON, &jacobiSteps);
     std::cout << "Result by Jacobi in " << jacobiSteps << " steps:" << std::endl;
-    for (int i = 0; i < jacobiResult.size(); i++) {
+    for (size_t i = 0; i < jacobiResult.size(); i++) {
         std::cout << "> Eigenvalue " << jacobiResult[i].first << ", eigenvector " << jacobiResult[i].second << std::endl;
     }
     std::cout << std::endl;

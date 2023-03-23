@@ -66,7 +66,7 @@ int main()
         std::cout << std::endl << "> Введите шаг h:" << std::endl;
         std::cin >> h;
 
-        std::vector<long double> derivatives = functions::calculateDerivativeValues(f, a, a + m * h, m);
+        std::vector<long double> derivatives = math::calculateDerivativeValues(f, a, a + m * h, m);
 
         io::printTable(
             4,
@@ -90,7 +90,7 @@ int main()
             2
         );
 
-        std::vector<long double> derivativesPrecise = functions::calculateDerivativeValuesPrecise(f, a, a + m * h, m);
+        std::vector<long double> derivativesPrecise = math::calculateDerivativeValuesPrecise(f, a, a + m * h, m);
 
         io::printTable(
             4,
@@ -114,7 +114,7 @@ int main()
             2
         );
 
-        std::vector<long double> secondDerivatives = functions::calculateSecondDerivativeValues(f, a, a + m * h, m);
+        std::vector<long double> secondDerivatives = math::calculateSecondDerivativeValues(f, a, a + m * h, m);
 
         io::printTable(
             4,

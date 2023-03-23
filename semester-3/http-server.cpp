@@ -11,7 +11,7 @@ int main()
             throw MethodNotAllowedError();
         }
 
-        std::filesystem::path path{"." + request.path};
+        std::filesystem::path path {"." + request.path};
         if (std::filesystem::is_directory(path)) {
             path /= "index.html";
         }

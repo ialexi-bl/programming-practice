@@ -1,4 +1,4 @@
-#include "lib/functions.hpp"
+#include "../lib/functions.hpp"
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -6,36 +6,37 @@
 
 namespace polynomials
 {
-    functions::Polynomial polynomials[] = {{{5.0l}},
-                                           {{8.0l, 9.0l}},
-                                           {{2.0l, -24.0l, 3.0l}},
-                                           {{-15.0l, 0.0l, -30.0l, 3.0l}},
-                                           {{-15.0l, 0.0l, -30.0l, 3.0l, -15.0l, 0.0l, -30.0l, 3.0l}}};
+    math::polynomials::Polynomial polynomials[] = {
+        {{5.0l}},
+        {{8.0l, 9.0l}},
+        {{2.0l, -24.0l, 3.0l}},
+        {{-15.0l, 0.0l, -30.0l, 3.0l}},
+        {{-15.0l, 0.0l, -30.0l, 3.0l, -15.0l, 0.0l, -30.0l, 3.0l}}};
     constexpr size_t polynomials_count = std::size(polynomials);
 
-    functions::Integrator getIntegrator(int i)
+    math::integrator_t getIntegrator(int i)
     {
         return [&, i](long double a, long double b) {
             return polynomials[i].integrate(a, b);
         };
     }
 
-    functions::Func getEvaluator(int i)
+    math::simple_function_t getEvaluator(int i)
     {
         return polynomials[i];
     }
 
-    functions::ExtrCalculator getDerivativeAbsMaxCalculator(int i)
+    math::extr_calculator_t getDerivativeAbsMaxCalculator(int i)
     {
         return polynomials[i].getDerivativeAbsMaxCalculator(1);
     }
 
-    functions::ExtrCalculator getSecondDerivativeAbsMaxCalculator(int i)
+    math::extr_calculator_t getSecondDerivativeAbsMaxCalculator(int i)
     {
         return polynomials[i].getDerivativeAbsMaxCalculator(2);
     }
 
-    functions::ExtrCalculator getFourthDerivativeAbsMaxCalculator(int i)
+    math::extr_calculator_t getFourthDerivativeAbsMaxCalculator(int i)
     {
         return polynomials[i].getDerivativeAbsMaxCalculator(4);
     }
@@ -80,23 +81,26 @@ namespace function
     // |f'| возрастает на [-∞,0) и убывает на (0,+∞]
     long double derivative_abs_max(long double a, long double b)
     {
-        return functions::getAbsMaxOnInterval({0}, derivative, a, b);
+        return math::getAbsMaxOnInterval({0}, derivative, a, b);
     }
 
     // |f''| чётная, возрастает на [-∞,log(2-√3)), убывает на (log(2-√3),0)
     long double second_derivative_abs_max(long double a, long double b)
     {
-        return functions::getAbsMaxOnInterval({std::log(2 - std::sqrt(3)), std::log(2 + std::sqrt(3))}, second_derivative, a, b);
+        return math::getAbsMaxOnInterval({std::log(2 - std::sqrt(3)), std::log(2 + std::sqrt(3))}, second_derivative, a, b);
     }
 
     long double fourth_derivative_abs_max(long double a, long double b)
     {
-        return functions::getAbsMaxOnInterval(
+        return math::getAbsMaxOnInterval(
             {std::log((1.0 / 2.0) * (13 - std::sqrt(105) - std::sqrt(2 * (135 - 13 * std::sqrt(105))))),
              std::log((1.0 / 2.0) * (13 - std::sqrt(105) + std::sqrt(2 * (135 - 13 * std::sqrt(105))))),
              std::log((1.0 / 2.0) * (13 + std::sqrt(105) - std::sqrt(2 * (135 - 13 * std::sqrt(105))))),
              std::log((1.0 / 2.0) * (13 + std::sqrt(105) + std::sqrt(2 * (135 - 13 * std::sqrt(105)))))},
-            fourth_derivative, a, b);
+            fourth_derivative,
+            a,
+            b
+        );
     }
 } // namespace function
 
@@ -142,7 +146,8 @@ int main()
 {
     std::cout << std::setprecision(20);
 
-    int i = 6, l = 1, m = 1000;
+    size_t i = 6;
+    int l = 1, m = 1000;
     long double a = 1, b = 20;
     long double realValue = 0;
     long double leftRect = 0;
@@ -155,7 +160,7 @@ int main()
     do {
         if (l == 1) {
             std::cout << "> Выберите функцию:" << std::endl;
-            for (int i = 0; i < polynomials::polynomials_count; i++) {
+            for (size_t i = 0; i < polynomials::polynomials_count; i++) {
                 std::cout << (i + 1) << ". " << static_cast<std::string>(polynomials::polynomials[i]) << std::endl;
             }
             std::cout << (polynomials::polynomials_count + 1) << ". " << function::str << std::endl
@@ -186,21 +191,21 @@ int main()
         std::cout << std::endl << "> Число промежутков деления: " << (l == 1 ? "m = " : "m * l = ") << m * l << std::endl;
         std::cout << "> Длина промежутков деления: h = " << h << std::endl;
 
-        functions::Integrator integrate = i == polynomials::polynomials_count + 1 ? exponent ::integrate
-                                          : i == polynomials::polynomials_count   ? function::integrate
-                                                                                  : polynomials::getIntegrator(i);
-        functions::Func evaluate = i == polynomials::polynomials_count + 1 ? exponent::evaluate
-                                   : i == polynomials::polynomials_count   ? function::evaluate
-                                                                           : polynomials::getEvaluator(i);
-        functions::ExtrCalculator derivative_abs_max = i == polynomials::polynomials_count + 1 ? exponent::derivative_abs_max
-                                                       : i == polynomials::polynomials_count
-                                                           ? function::derivative_abs_max
-                                                           : polynomials::getDerivativeAbsMaxCalculator(i);
-        functions::ExtrCalculator second_derivative_abs_max =
+        math::integrator_t integrate = i == polynomials::polynomials_count + 1 ? exponent ::integrate
+                                       : i == polynomials::polynomials_count   ? function::integrate
+                                                                               : polynomials::getIntegrator(i);
+        math::simple_function_t evaluate = i == polynomials::polynomials_count + 1 ? exponent::evaluate
+                                           : i == polynomials::polynomials_count   ? function::evaluate
+                                                                                   : polynomials::getEvaluator(i);
+        math::extr_calculator_t derivative_abs_max = i == polynomials::polynomials_count + 1 ? exponent::derivative_abs_max
+                                                     : i == polynomials::polynomials_count
+                                                         ? function::derivative_abs_max
+                                                         : polynomials::getDerivativeAbsMaxCalculator(i);
+        math::extr_calculator_t second_derivative_abs_max =
             i == polynomials::polynomials_count + 1 ? exponent::second_derivative_abs_max
             : i == polynomials::polynomials_count   ? function::second_derivative_abs_max
                                                     : polynomials::getSecondDerivativeAbsMaxCalculator(i);
-        functions::ExtrCalculator fourth_derivative_abs_max =
+        math::extr_calculator_t fourth_derivative_abs_max =
             i == polynomials::polynomials_count + 1 ? exponent::fourth_derivative_abs_max
             : i == polynomials::polynomials_count   ? function::fourth_derivative_abs_max
                                                     : polynomials::getFourthDerivativeAbsMaxCalculator(i);
@@ -213,19 +218,19 @@ int main()
         long double currentSimpson = 0;
         long double currentThreeEights = 0;
         if (l == 1) {
-            leftRect = currentLeftRect = functions::calculateIntegralUsing::compound::leftRect(evaluate, a, b, m);
-            middleRect = currentMiddleRect = functions::calculateIntegralUsing::compound::middleRect(evaluate, a, b, m);
-            rightRect = currentRightRect = functions::calculateIntegralUsing::compound::rightRect(evaluate, a, b, m);
-            trapezoid = currentTrapezoid = functions::calculateIntegralUsing::compound::trapezoid(evaluate, a, b, m);
-            simpson = currentSimpson = functions::calculateIntegralUsing::compound::simpson(evaluate, a, b, m);
-            threeEights = currentThreeEights = functions::calculateIntegralUsing::compound::threeEights(evaluate, a, b, m);
+            leftRect = currentLeftRect = math::calculateIntegralUsing::compound::leftRect(evaluate, a, b, m);
+            middleRect = currentMiddleRect = math::calculateIntegralUsing::compound::middleRect(evaluate, a, b, m);
+            rightRect = currentRightRect = math::calculateIntegralUsing::compound::rightRect(evaluate, a, b, m);
+            trapezoid = currentTrapezoid = math::calculateIntegralUsing::compound::trapezoid(evaluate, a, b, m);
+            simpson = currentSimpson = math::calculateIntegralUsing::compound::simpson(evaluate, a, b, m);
+            threeEights = currentThreeEights = math::calculateIntegralUsing::compound::threeEights(evaluate, a, b, m);
         } else {
-            currentLeftRect = functions::calculateIntegralUsing::compound::leftRect(evaluate, a, b, m * l);
-            currentMiddleRect = functions::calculateIntegralUsing::compound::middleRect(evaluate, a, b, m * l);
-            currentRightRect = functions::calculateIntegralUsing::compound::rightRect(evaluate, a, b, m * l);
-            currentTrapezoid = functions::calculateIntegralUsing::compound::trapezoid(evaluate, a, b, m * l);
-            currentSimpson = functions::calculateIntegralUsing::compound::simpson(evaluate, a, b, m * l);
-            currentThreeEights = functions::calculateIntegralUsing::compound::threeEights(evaluate, a, b, m * l);
+            currentLeftRect = math::calculateIntegralUsing::compound::leftRect(evaluate, a, b, m * l);
+            currentMiddleRect = math::calculateIntegralUsing::compound::middleRect(evaluate, a, b, m * l);
+            currentRightRect = math::calculateIntegralUsing::compound::rightRect(evaluate, a, b, m * l);
+            currentTrapezoid = math::calculateIntegralUsing::compound::trapezoid(evaluate, a, b, m * l);
+            currentSimpson = math::calculateIntegralUsing::compound::simpson(evaluate, a, b, m * l);
+            currentThreeEights = math::calculateIntegralUsing::compound::threeEights(evaluate, a, b, m * l);
         }
 
         std::cout << "> Точное значение: " << realValue << std::endl
@@ -239,7 +244,7 @@ int main()
                       << "    Погрешность уточнённого значения: " << std::abs(realValue - leftRectPrecise) << std::endl;
         }
         std::cout << "    Теоретическая погрешность:        "
-                  << functions::getTheoreticalErrorOf::compound::leftRect(derivative_abs_max, a, b, m) << std::endl
+                  << math::getTheoreticalErrorOf::compound::leftRect(derivative_abs_max, a, b, m) << std::endl
                   << "> КФ среднего прямоугольника:" << std::endl
                   << "    Значение:                         " << currentMiddleRect << std::endl
                   << "    Погрешность:                      " << std::abs(realValue - currentMiddleRect) << std::endl;
@@ -249,7 +254,7 @@ int main()
                       << "    Погрешность уточнённого значения: " << std::abs(realValue - middleRectPrecise) << std::endl;
         }
         std::cout << "    Теоретическая погрешность:        "
-                  << functions::getTheoreticalErrorOf::compound::middleRect(second_derivative_abs_max, a, b, m) << std::endl
+                  << math::getTheoreticalErrorOf::compound::middleRect(second_derivative_abs_max, a, b, m) << std::endl
                   << "> КФ правого прямоугольника:" << std::endl
                   << "    Значение:                         " << currentRightRect << std::endl
                   << "    Погрешность:                      " << std::abs(realValue - currentRightRect) << std::endl;
@@ -259,7 +264,7 @@ int main()
                       << "    Погрешность уточнённого значения: " << std::abs(realValue - rightRectPrecise) << std::endl;
         }
         std::cout << "    Теоретическая погрешность:        "
-                  << functions::getTheoreticalErrorOf::compound::rightRect(derivative_abs_max, a, b, m) << std::endl
+                  << math::getTheoreticalErrorOf::compound::rightRect(derivative_abs_max, a, b, m) << std::endl
                   << "> КФ трапеции:" << std::endl
                   << "    Значение:                         " << currentTrapezoid << std::endl
                   << "    Погрешность:                      " << std::abs(realValue - currentTrapezoid) << std::endl;
@@ -269,7 +274,7 @@ int main()
                       << "    Погрешность уточнённого значения: " << std::abs(realValue - trapezoidPrecise) << std::endl;
         }
         std::cout << "    Теоретическая погрешность:        "
-                  << functions::getTheoreticalErrorOf::compound::trapezoid(second_derivative_abs_max, a, b, m) << std::endl
+                  << math::getTheoreticalErrorOf::compound::trapezoid(second_derivative_abs_max, a, b, m) << std::endl
                   << "> КФ Симпсона:" << std::endl
                   << "    Значение:                         " << currentSimpson << std::endl
                   << "    Погрешность:                      " << std::abs(realValue - currentSimpson) << std::endl;
@@ -279,7 +284,7 @@ int main()
                       << "    Погрешность уточнённого значения: " << std::abs(realValue - simpsonPrecise) << std::endl;
         }
         std::cout << "    Теоретическая погрешность:        "
-                  << functions::getTheoreticalErrorOf::compound::simpson(fourth_derivative_abs_max, a, b, m) << std::endl
+                  << math::getTheoreticalErrorOf::compound::simpson(fourth_derivative_abs_max, a, b, m) << std::endl
                   << "> КФ трёх восьмых:" << std::endl
                   << "    Значение:                         " << currentThreeEights << std::endl
                   << "    Погрешность:                      " << std::abs(realValue - currentThreeEights) << std::endl;
@@ -289,7 +294,7 @@ int main()
                       << "    Погрешность уточнённого значения: " << std::abs(realValue - threeEightsPrecise) << std::endl;
         }
         std::cout << "    Теоретическая погрешность:        "
-                  << functions::getTheoreticalErrorOf::compound::threeEights(fourth_derivative_abs_max, a, b, m) << std::endl;
+                  << math::getTheoreticalErrorOf::compound::threeEights(fourth_derivative_abs_max, a, b, m) << std::endl;
 
         std::cout
             << std::endl

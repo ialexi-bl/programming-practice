@@ -35,13 +35,13 @@ int main()
     std::cin >> epsilon;
     std::cout << std::endl;
 
-    polynomials::InterpolationTable table = polynomials::getInterpolationTable(f, m, a, b);
+    polynomials::interpolation_table_t table = polynomials::getInterpolationTable(f, m, a, b);
 
     std::cout << "> Таблица узлов интерполяции:" << std::endl;
     io::printTable(table, "x", "f(x)", 2);
     std::cout << std::endl;
 
-    polynomials::InterpolationTable invertedTable = polynomials::invertInterpolationTable(table);
+    polynomials::interpolation_table_t invertedTable = polynomials::invertInterpolationTable(table);
 
     while (true) {
         long double F = 0.15;
@@ -76,7 +76,7 @@ int main()
             }
         );
 
-        std::vector<long double> roots = roots::findAllRootsUsing::tangents(
+        std::vector<long double> roots = math::findAllRootsUsing::tangents(
             [&table, n, F](long double x) {
                 return polynomials::interpolateUsing::lagrange(table, n, x) - F;
             },
@@ -93,7 +93,7 @@ int main()
 
         if (roots.size() > 0) {
             std::cout << "      Корни: " << std::endl;
-            for (int i = 0; i < roots.size(); i++) {
+            for (size_t i = 0; i < roots.size(); i++) {
                 std::cout << "        " << i + 1 << ". x = " << roots[i] << std::endl
                           << "           Модуль невязки: |f(x) - F| = " << std::abs(f(roots[i]) - F) << std::endl;
             }

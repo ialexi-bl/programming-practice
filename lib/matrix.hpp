@@ -12,13 +12,13 @@ namespace math
     class Matrix
     {
       public:
-        int m_width, m_height;
+        size_t m_width, m_height;
         vector m_values;
 
       public:
-        Matrix(int height, int width);
-        Matrix(int height, int width, const vector &values);
-        Matrix(int height, int width, const std::vector<vector> &values);
+        Matrix(size_t height, size_t width);
+        Matrix(size_t height, size_t width, const vector &values);
+        Matrix(size_t height, size_t width, const std::vector<vector> &values);
 
         Matrix(const Matrix &) = default;
         Matrix(Matrix &&) = default;
@@ -28,21 +28,21 @@ namespace math
       private:
         class Row;
         class Column;
-        Row row(int i);
-        Column column(int j);
+        Row row(size_t i);
+        Column column(size_t j);
 
         void gaussForwards(bool chooseMainElement = true);
         void gaussBackwards();
 
       public:
-        matrix_value &operator()(int i, int j);
-        matrix_value operator()(int i, int j) const;
+        matrix_value &operator()(size_t i, size_t j);
+        matrix_value operator()(size_t i, size_t j) const;
 
         // void extend(const Matrix &m);
-        Matrix fromColumns(int from, int to);
+        Matrix fromColumns(size_t from, size_t to);
 
-        void swapRows(int i, int j);
-        void swapColumns(int i, int j);
+        void swapRows(size_t i, size_t j);
+        void swapColumns(size_t i, size_t j);
 
         std::pair<Matrix, Matrix> decomposeLU() const;
         Matrix invert() const;
@@ -54,7 +54,7 @@ namespace math
         matrix_value norm() const;
         matrix_value spectralRadius() const;
 
-        static Matrix id(int size);
+        static Matrix id(size_t size);
 
         friend std::ostream &operator<<(std::ostream &, const Matrix &);
         friend vector solveLinearSystem(const Matrix &, bool);
@@ -76,7 +76,8 @@ namespace math
     vector solveUpperTriangularLinearSystem(const Matrix &extendedMatrix);
     vector solveUpperTriangularLinearSystem(const Matrix &matrix, const vector &vector);
 
-    std::vector<std::pair<math::matrix_value, vector>> getJacobiEigenvectors(math::Matrix A, long double e, int *steps = nullptr);
+    std::vector<std::pair<math::matrix_value, vector>>
+    getJacobiEigenvectors(math::Matrix A, long double e, size_t *steps = nullptr);
 
     const Matrix *for_wolfram(const Matrix &);
 } // namespace math

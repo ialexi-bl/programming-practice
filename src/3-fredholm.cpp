@@ -24,7 +24,7 @@ constexpr value_t epsilon = 1e-12;
 
 static simple_function_t solve(int n)
 {
-    auto nodes = functions::getGaussCoefficients(n, a, b);
+    auto nodes = math::getGaussCoefficients(n, a, b);
 
     math::Matrix D(n, n);
     math::vector g(n);
@@ -77,7 +77,7 @@ int main()
     }
 
     size_t size = table.size();
-    io::printTable(4, size + 1, {"x", "u(a)", "u(m)", "u(b)"}, [&](int row, int col) -> value_t {
+    io::printTable(4, size + 1, {"x", "u(a)", "u(m)", "u(b)"}, [&](size_t row, size_t col) -> value_t {
         if (row < size) {
             auto [u1, u2, u3] = table[row];
             switch (col) {

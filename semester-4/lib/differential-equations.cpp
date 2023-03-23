@@ -1,5 +1,4 @@
-#include "./differential-equations.hpp"
-#include "./io.hpp"
+#include "differential-equations.hpp"
 #include <assert.h>
 #include <functional>
 #include <vector>
@@ -36,8 +35,8 @@ namespace diff
 
     namespace continueTableUsing
     {
-        std::vector<long double> adams(const std::vector<long double> &table, FirstOrderEquation f, long double xn, long double h,
-                                       int length)
+        std::vector<long double>
+        adams(const std::vector<long double> &table, diff_operator_t f, long double xn, long double h, int length)
         {
             assert(table.size() == 5 || "4th order Adams' method requires exactly 5 nodes");
 
@@ -61,8 +60,8 @@ namespace diff
             return result;
         }
 
-        std::vector<long double> rungeKutta(const std::vector<long double> &table, FirstOrderEquation f, long double xn,
-                                            long double h, int length)
+        std::vector<long double>
+        rungeKutta(const std::vector<long double> &table, diff_operator_t f, long double xn, long double h, int length)
         {
             std::vector<long double> result = table;
 
@@ -80,8 +79,8 @@ namespace diff
             return result;
         }
 
-        std::vector<long double> euler(const std::vector<long double> &table, FirstOrderEquation f, long double xn, long double h,
-                                       int length)
+        std::vector<long double>
+        euler(const std::vector<long double> &table, diff_operator_t f, long double xn, long double h, int length)
         {
             std::vector<long double> result = table;
             for (int s = result.size(), i = s - 1; i < length; i++) {
@@ -92,8 +91,8 @@ namespace diff
             return result;
         }
 
-        std::vector<long double> euler1(const std::vector<long double> &table, FirstOrderEquation f, long double xn,
-                                        long double h, int length)
+        std::vector<long double>
+        euler1(const std::vector<long double> &table, diff_operator_t f, long double xn, long double h, int length)
         {
             std::vector<long double> result = table;
             for (int s = result.size(), i = s - 1; i < length; i++) {
@@ -107,8 +106,8 @@ namespace diff
             return result;
         }
 
-        std::vector<long double> euler2(const std::vector<long double> &table, FirstOrderEquation f, long double xn,
-                                        long double h, int length)
+        std::vector<long double>
+        euler2(const std::vector<long double> &table, diff_operator_t f, long double xn, long double h, int length)
         {
             std::vector<long double> result = table;
             for (int s = result.size(), i = s - 1; i < length; i++) {

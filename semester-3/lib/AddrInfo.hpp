@@ -33,7 +33,6 @@ struct AddrInfo {
         return reinterpret_cast<const sockaddr_in *>(addrInfo->ai_addr);
     }
 
-    AddrInfo(const char *hostname, const std::string &servname,
-             const addrinfo &hints);
+    AddrInfo(const char *hostname, const std::string &servname, const addrinfo &hints);
     ~AddrInfo();
 };

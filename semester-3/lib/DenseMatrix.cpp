@@ -9,13 +9,11 @@
 #include "SparseMatrix.hpp"
 
 DenseMatrix::DenseMatrix(int height, int width)
-    : m_width(width), m_height(height),
-      m_matrix(new matrix_element_t[width * height]())
+    : m_width(width), m_height(height), m_matrix(new matrix_element_t[width * height]())
 {
 }
 
-DenseMatrix::DenseMatrix(const std::string &filename)
-    : DenseMatrix(std::ifstream(filename))
+DenseMatrix::DenseMatrix(const std::string &filename) : DenseMatrix(std::ifstream(filename))
 {
 }
 
@@ -31,20 +29,18 @@ DenseMatrix::DenseMatrix(std::istream &&stream)
         ++rowWidth;
         values.push_back(value);
 
-        while (stream.peek() == ' ')
-            stream.get();
+        while (stream.peek() == ' ') stream.get();
 
         char c = stream.peek();
-        if (c != EOF && c != '\n')
-            continue;
+        if (c != EOF && c != '\n') continue;
 
         if (width == -1) {
             width = rowWidth;
         } else if (width != rowWidth) {
             throw std::runtime_error(
-                std::string("Expected row ") + std::to_string(rowNumber) +
-                " to contain " + std::to_string(width) + " values, but " +
-                std::to_string(rowWidth) + " were found.");
+                std::string("Expected row ") + std::to_string(rowNumber) + " to contain " + std::to_string(width) +
+                " values, but " + std::to_string(rowWidth) + " were found."
+            );
         }
 
         ++rowNumber;
@@ -52,9 +48,9 @@ DenseMatrix::DenseMatrix(std::istream &&stream)
     }
     if (stream.fail() && stream.peek() != EOF) {
         char c = stream.peek();
-        throw std::runtime_error(std::string("Unexpected token '") +
-                                 (c == EOF ? "EOF" : std::to_string(c)) +
-                                 "' while reading matrix.");
+        throw std::runtime_error(
+            std::string("Unexpected token '") + (c == EOF ? "EOF" : std::to_string(c)) + "' while reading matrix."
+        );
     }
     if (width < 0) {
         throw std::runtime_error("Stream is empty or doesn't exist");
@@ -97,8 +93,7 @@ int DenseMatrix::getHeight() const
     return m_height;
 }
 
-void DenseMatrix::multiply(const DenseMatrix &m, int from, int to,
-                           DenseMatrix &result) const
+void DenseMatrix::multiply(const DenseMatrix &m, int from, int to, DenseMatrix &result) const
 {
     for (int i = from; i < to; i++) {
         for (int j = 0; j < m.m_width; j++) {
@@ -109,8 +104,7 @@ void DenseMatrix::multiply(const DenseMatrix &m, int from, int to,
     }
 }
 
-void DenseMatrix::multiply(const SparseMatrix &m, int from, int to,
-                           DenseMatrix &result) const
+void DenseMatrix::multiply(const SparseMatrix &m, int from, int to, DenseMatrix &result) const
 {
     for (int r = 0, n = m.m_height; r < n; r++) {
         for (int j = m.m_rows[r], l = m.m_rows[r + 1]; j < l; j++) {
@@ -135,8 +129,7 @@ std::unique_ptr<Matrix> DenseMatrix::multiply(const Matrix &m) const
 std::unique_ptr<DenseMatrix> DenseMatrix::multiply(const DenseMatrix &m) const
 {
     if (m_width != m.getHeight()) {
-        throw std::runtime_error(
-            "Impossible to multiply matrices of such dimensions");
+        throw std::runtime_error("Impossible to multiply matrices of such dimensions");
     }
 
     DenseMatrix *result = new DenseMatrix(m_height, m.m_width);
@@ -148,8 +141,7 @@ std::unique_ptr<DenseMatrix> DenseMatrix::multiply(const DenseMatrix &m) const
 std::unique_ptr<DenseMatrix> DenseMatrix::multiply(const SparseMatrix &m) const
 {
     if (m_width != m.getHeight()) {
-        throw std::runtime_error(
-            "Impossible to multiply matrices of such dimensions");
+        throw std::runtime_error("Impossible to multiply matrices of such dimensions");
     }
 
     DenseMatrix *result = new DenseMatrix(m_height, m.getWidth());
@@ -172,27 +164,25 @@ std::unique_ptr<Matrix> DenseMatrix::dmultiply(const Matrix &m) const
 std::unique_ptr<DenseMatrix> DenseMatrix::dmultiply(const DenseMatrix &m) const
 {
     if (m_width != m.getHeight()) {
-        throw std::runtime_error(
-            "Impossible to multiply matrices of such dimensions");
+        throw std::runtime_error("Impossible to multiply matrices of such dimensions");
     }
 
     std::array<std::thread, MULT_THREADS_COUNT> threads;
     int rowsPerThread = m_height / MULT_THREADS_COUNT;
 
     DenseMatrix *result = new DenseMatrix(m_height, m.getWidth());
-    for (int i = 0; i < MULT_THREADS_COUNT; i++) {
+    for (unsigned int i = 0; i < MULT_THREADS_COUNT; i++) {
         threads[i] = std::thread(
-            [=, &m](int threadNumber) {
+            [=, this, &m](int threadNumber) {
                 int from = threadNumber * rowsPerThread;
-                int to = threadNumber == MULT_THREADS_COUNT - 1
-                             ? m_height
-                             : (threadNumber + 1) * rowsPerThread;
+                int to = threadNumber == MULT_THREADS_COUNT - 1 ? m_height : (threadNumber + 1) * rowsPerThread;
                 multiply(m, from, to, *result);
             },
-            i);
+            i
+        );
     }
 
-    for (int i = 0; i < MULT_THREADS_COUNT; i++) {
+    for (unsigned int i = 0; i < MULT_THREADS_COUNT; i++) {
         threads[i].join();
     }
 
@@ -202,27 +192,25 @@ std::unique_ptr<DenseMatrix> DenseMatrix::dmultiply(const DenseMatrix &m) const
 std::unique_ptr<DenseMatrix> DenseMatrix::dmultiply(const SparseMatrix &m) const
 {
     if (m_width != m.getHeight()) {
-        throw std::runtime_error(
-            "Impossible to multiply matrices of such dimensions");
+        throw std::runtime_error("Impossible to multiply matrices of such dimensions");
     }
 
     std::array<std::thread, MULT_THREADS_COUNT> threads;
     int rowsPerThread = m_height / MULT_THREADS_COUNT;
 
     DenseMatrix *result = new DenseMatrix(m_height, m.getWidth());
-    for (int i = 0; i < MULT_THREADS_COUNT; i++) {
+    for (unsigned int i = 0; i < MULT_THREADS_COUNT; i++) {
         threads[i] = std::thread(
-            [=, &m](int threadNumber) {
+            [=, this, &m](int threadNumber) {
                 int from = threadNumber * rowsPerThread;
-                int to = threadNumber == MULT_THREADS_COUNT - 1
-                             ? m_height
-                             : (threadNumber + 1) * rowsPerThread;
+                int to = threadNumber == MULT_THREADS_COUNT - 1 ? m_height : (threadNumber + 1) * rowsPerThread;
                 multiply(m, from, to, *result);
             },
-            i);
+            i
+        );
     }
 
-    for (int i = 0; i < MULT_THREADS_COUNT; i++) {
+    for (unsigned int i = 0; i < MULT_THREADS_COUNT; i++) {
         threads[i].join();
     }
 

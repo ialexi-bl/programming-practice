@@ -18,14 +18,10 @@ class SparseMatrix : public Matrix
     std::vector<matrix_element_t> m_values;
     std::vector<int> m_rows = {0}, m_cols;
 
-    void
-    initFromMap(const std::map<std::pair<int, int>, matrix_element_t> &values);
+    void initFromMap(const std::map<std::pair<int, int>, matrix_element_t> &values);
 
-    SparseMatrix(int height, int width,
-                 const std::map<std::pair<int, int>, matrix_element_t> &values);
-    SparseMatrix(
-        int height, int width,
-        const std::array<SparseMatrix *, MULT_THREADS_COUNT> &matrices);
+    SparseMatrix(int height, int width, const std::map<std::pair<int, int>, matrix_element_t> &values);
+    SparseMatrix(int height, int width, const std::array<SparseMatrix *, MULT_THREADS_COUNT> &matrices);
 
   public:
     SparseMatrix(int height, int width);
@@ -38,18 +34,15 @@ class SparseMatrix : public Matrix
     virtual int getHeight() const override;
 
   private:
-    void multiply(const DenseMatrix &m, int from, int to,
-                  DenseMatrix &result) const;
-    void multiply(const SparseMatrix &m, int from, int to,
-                  SparseMatrix &result) const;
+    void multiply(const DenseMatrix &m, int from, int to, DenseMatrix &result) const;
+    void multiply(const SparseMatrix &m, int from, int to, SparseMatrix &result) const;
 
   public:
     virtual std::unique_ptr<Matrix> multiply(const Matrix &m) const override;
     std::unique_ptr<DenseMatrix> multiply(const DenseMatrix &m) const;
     std::unique_ptr<SparseMatrix> multiply(const SparseMatrix &m) const;
 
-    virtual std::unique_ptr<Matrix>
-    dmultiply(const Matrix &matrix) const override;
+    virtual std::unique_ptr<Matrix> dmultiply(const Matrix &matrix) const override;
     std::unique_ptr<DenseMatrix> dmultiply(const DenseMatrix &m) const;
     std::unique_ptr<SparseMatrix> dmultiply(const SparseMatrix &m) const;
 

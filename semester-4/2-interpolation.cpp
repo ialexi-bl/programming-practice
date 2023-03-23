@@ -1,5 +1,5 @@
 #include "../lib/io.hpp"
-#include "../lib/polynomials.hpp"
+#include "lib/polynomials.hpp"
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
@@ -29,7 +29,7 @@ int main()
     std::cin >> a >> b;
     std::cout << std::endl;
 
-    polynomials::InterpolationTable table = polynomials::getInterpolationTable(f, m, a, b);
+    polynomials::interpolation_table_t table = polynomials::getInterpolationTable(f, m, a, b);
 
     std::cout << "> Таблица узлов интерполяции:" << std::endl;
     io::printTable(table, "x", "f(x)", 2);

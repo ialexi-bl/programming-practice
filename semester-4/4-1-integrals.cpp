@@ -1,4 +1,4 @@
-#include "lib/functions.hpp"
+#include "../lib/functions.hpp"
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -6,18 +6,21 @@
 
 namespace polynomials
 {
-    functions::Polynomial polynomials[] = {std::vector{5.0l}, std::vector{8.0l, 9.0l}, std::vector{2.0l, -24.0l, 3.0l},
-                                           std::vector{-15.0l, 0.0l, -30.0l, 3.0l}};
+    math::polynomials::Polynomial polynomials[] = {
+        std::vector {5.0l},
+        std::vector {8.0l, 9.0l},
+        std::vector {2.0l, -24.0l, 3.0l},
+        std::vector {-15.0l, 0.0l, -30.0l, 3.0l}};
     constexpr size_t polynomials_count = std::size(polynomials);
 
-    functions::Integrator getIntegrator(int i)
+    math::integrator_t getIntegrator(size_t i)
     {
         return [&, i](long double a, long double b) {
             return polynomials[i].integrate(a, b);
         };
     }
 
-    functions::Func getEvaluator(int i)
+    math::simple_function_t getEvaluator(size_t i)
     {
         return polynomials[i];
     }
@@ -47,10 +50,10 @@ int main()
 {
     std::cout << std::setprecision(20);
     do {
-        int i;
+        size_t i;
 
         std::cout << "> Выберите функцию:" << std::endl;
-        for (int i = 0; i < polynomials::polynomials_count; i++) {
+        for (size_t i = 0; i < polynomials::polynomials_count; i++) {
             std::cout << (i + 1) << ". " << static_cast<std::string>(polynomials::polynomials[i]) << std::endl;
         }
         std::cout << (polynomials::polynomials_count + 1) << ". " << function::str << std::endl;
@@ -71,17 +74,17 @@ int main()
                   << std::endl;
         std::cin >> a >> b;
 
-        functions::Integrator integrate =
-            i == polynomials::polynomials_count ? function::integrate : polynomials::getIntegrator(i);
-        functions::Func evaluate = i == polynomials::polynomials_count ? function::evaluate : polynomials::getEvaluator(i);
+        math::integrator_t integrate = i == polynomials::polynomials_count ? function::integrate : polynomials::getIntegrator(i);
+        math::simple_function_t evaluate =
+            i == polynomials::polynomials_count ? function::evaluate : polynomials::getEvaluator(i);
 
         long double realValue = integrate(a, b);
-        long double leftRect = functions::calculateIntegralUsing::leftRect(evaluate, a, b);
-        long double middleRect = functions::calculateIntegralUsing::middleRect(evaluate, a, b);
-        long double rightRect = functions::calculateIntegralUsing::rightRect(evaluate, a, b);
-        long double trapezoid = functions::calculateIntegralUsing::trapezoid(evaluate, a, b);
-        long double simpson = functions::calculateIntegralUsing::simpson(evaluate, a, b);
-        long double threeEights = functions::calculateIntegralUsing::threeEights(evaluate, a, b);
+        long double leftRect = math::calculateIntegralUsing::leftRect(evaluate, a, b);
+        long double middleRect = math::calculateIntegralUsing::middleRect(evaluate, a, b);
+        long double rightRect = math::calculateIntegralUsing::rightRect(evaluate, a, b);
+        long double trapezoid = math::calculateIntegralUsing::trapezoid(evaluate, a, b);
+        long double simpson = math::calculateIntegralUsing::simpson(evaluate, a, b);
+        long double threeEights = math::calculateIntegralUsing::threeEights(evaluate, a, b);
 
         std::cout << std::endl
                   << "> Точное значение: " << realValue << std::endl
