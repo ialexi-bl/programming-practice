@@ -544,6 +544,7 @@ namespace math
                 x -= temp(i, j) * result[j];
             }
             result[i] = x / temp(i, i);
+            if (i == 0) break;
         }
 
         return result;
