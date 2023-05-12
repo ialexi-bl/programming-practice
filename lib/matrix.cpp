@@ -67,6 +67,15 @@ math::matrix_value operator*(const math::vector &v1, const math::vector &v2)
     return result;
 }
 
+math::vector operator+(const math::vector &v1, const math::vector &v2)
+{
+    math::vector result = v1;
+    for (size_t i = 0; i < result.size(); i++) {
+        result[i] += v2[i];
+    }
+    return result;
+}
+
 math::vector operator-(const math::vector &v1, const math::vector &v2)
 {
     math::vector result = v1;
@@ -166,6 +175,25 @@ namespace math
         m_values = formatted_values;
     }
 
+    Matrix::Matrix(const std::vector<vector> &values)
+    {
+        if (values.size() == 0) throw std::runtime_error("Values must not be empty");
+        m_height = values.size();
+        m_width = values[0].size();
+
+        vector formatted_values;
+
+        for (size_t j = 0; j < m_width; j++) {
+            if (values[j].size() != m_width) throw std::runtime_error("Row lengths are not equal");
+
+            for (size_t i = 0; i < m_height; i++) {
+                formatted_values.push_back(values[i][j]);
+            }
+        }
+
+        m_values = formatted_values;
+    }
+
     matrix_value &Matrix::operator()(size_t i, size_t j)
     {
         return m_values[j * m_height + i];
@@ -241,11 +269,11 @@ namespace math
 
     void Matrix::gaussBackwards()
     {
-        for (size_t j = m_height - 1; j >= 0; j--) {
+        for (int j = m_height - 1; j >= 0; j--) {
             // size_t mainElementIndex = column(j).mainElementIndex(0, j + 1);
             // if (mainElementIndex != j) {swapRows(mainElementIndex, j);}
 
-            for (size_t i = j - 1; i >= 0; i--) {
+            for (int i = j - 1; i >= 0; i--) {
                 if (eq((*this)(i, j), 0)) {
                     continue;
                 }
@@ -253,6 +281,20 @@ namespace math
                 row(i) -= row(j) / (*this)(j, j) * (*this)(i, j);
             }
         }
+    }
+
+    bool Matrix::isDiagonal() const
+    {
+        if (m_height != m_width) return false;
+
+        for (size_t i = 0; i < m_height; i++) {
+            for (size_t j = i + 1; j < m_width; j++) {
+                if ((*this)(i, j) != (*this)(j, i)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     Matrix Matrix::fromColumns(size_t from, size_t to)
@@ -538,9 +580,9 @@ namespace math
         Matrix temp = extendedMatrix;
 
         vector result(temp.m_height);
-        for (size_t i = temp.m_height - 1; i >= 0; i--) {
+        for (int i = temp.m_height - 1; i >= 0; i--) {
             matrix_value x = temp(i, temp.m_width - 1);
-            for (size_t j = temp.m_height - 1; j > i; j--) {
+            for (int j = temp.m_height - 1; j > i; j--) {
                 x -= temp(i, j) * result[j];
             }
             result[i] = x / temp(i, i);

@@ -24,6 +24,13 @@ namespace io
         size_t width,
         size_t height,
         std::vector<std::string> headers,
+        std::function<long double(size_t row, size_t col)> get_element
+    );
+    void printTable(
+        size_t width,
+        size_t height,
+        size_t cell_width,
+        std::vector<std::string> headers,
         std::function<long double(size_t row, size_t col)> get_element,
         size_t indent = 0
     );

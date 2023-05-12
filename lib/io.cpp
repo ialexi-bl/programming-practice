@@ -4,8 +4,7 @@
 
 namespace io
 {
-    static std::string table_border = "─────────────────────────";
-    static size_t border_width = table_border.length() / 3;
+    static size_t constexpr DEFAULT_BORDER_WIDTH = 25;
 
     static void indent(size_t width)
     {
@@ -23,6 +22,7 @@ namespace io
         return printTable(
             2,
             std::min<int>(table.size(), count),
+            DEFAULT_BORDER_WIDTH,
             {header1, header2},
             [&table](size_t row, size_t col) {
                 return col ? table[row].second : table[row].first;
@@ -42,6 +42,7 @@ namespace io
         printTable(
             width,
             height,
+            DEFAULT_BORDER_WIDTH,
             headers,
             [&table](size_t row, size_t col) {
                 return table[row][col];
@@ -54,11 +55,27 @@ namespace io
         size_t width,
         size_t height,
         std::vector<std::string> headers,
-        std::function<long double(size_t, size_t)> getElement,
+        std::function<long double(size_t, size_t)> getElement
+    )
+    {
+        printTable(width, height, DEFAULT_BORDER_WIDTH, headers, getElement);
+    }
+
+    void printTable(
+        size_t width,
+        size_t height,
+        size_t cell_width,
+        std::vector<std::string> headers,
+        std::function<long double(size_t row, size_t col)> getElement,
         size_t indentWidth
     )
     {
         std::cout << std::right;
+
+        std::string table_border = "";
+        for (size_t i = 0; i < cell_width; i++) {
+            table_border += "─";
+        }
 
         indent(indentWidth);
         std::cout << "┌";
@@ -70,7 +87,7 @@ namespace io
 
         indent(indentWidth);
         for (size_t i = 0; i < width; i++) {
-            std::cout << "│" << std::setw(border_width) << headers[i];
+            std::cout << "│" << std::setw(cell_width) << headers[i];
         }
         std::cout << "│" << std::endl << std::left;
 
@@ -85,7 +102,7 @@ namespace io
 
             indent(indentWidth);
             for (size_t j = 0; j < width; j++) {
-                std::cout << "│" << std::setw(border_width) << getElement(i, j);
+                std::cout << "│" << std::setw(cell_width) << getElement(i, j);
             }
             std::cout << "│" << std::endl;
         }

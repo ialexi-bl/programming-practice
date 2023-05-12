@@ -19,6 +19,7 @@ namespace math
         Matrix(size_t height, size_t width);
         Matrix(size_t height, size_t width, const vector &values);
         Matrix(size_t height, size_t width, const std::vector<vector> &values);
+        Matrix(const std::vector<vector> &values);
 
         Matrix(const Matrix &) = default;
         Matrix(Matrix &&) = default;
@@ -37,6 +38,7 @@ namespace math
       public:
         matrix_value &operator()(size_t i, size_t j);
         matrix_value operator()(size_t i, size_t j) const;
+        bool isDiagonal() const;
 
         // void extend(const Matrix &m);
         Matrix fromColumns(size_t from, size_t to);
@@ -89,5 +91,6 @@ math::Matrix operator*(math::matrix_value k, math::Matrix m);
 math::vector operator*(math::matrix_value k, math::vector v);
 math::vector operator/(math::vector v, math::matrix_value k);
 math::vector operator*(const math::Matrix &m, const math::vector &v);
+math::vector operator+(const math::vector &v1, const math::vector &v2);
 math::vector operator-(const math::vector &v1, const math::vector &v2);
 math::matrix_value euclideanNorm(const math::vector &v);
