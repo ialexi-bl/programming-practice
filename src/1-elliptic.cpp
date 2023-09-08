@@ -2,6 +2,7 @@
 #include "../lib/math.hpp"
 #include "../lib/matrix.hpp"
 #include <cmath>
+#include <functional>
 #include <iostream>
 #include <numbers>
 #include <utility>
@@ -59,6 +60,12 @@ math::Matrix Lu(const math::Matrix &U);
 math::Matrix Lu(two_arg_function_t u);
 math::Matrix discretize(two_arg_function_t u);
 void simpleIteration(const math::Matrix &_U0, const math::Matrix &Uexact, const math::Matrix &F);
+void simpleIterationOptimal(const math::Matrix &_U0, const math::Matrix &Uexact, const math::Matrix &F);
+void seidel(const math::Matrix &_U0, const math::Matrix &Uexact, const math::Matrix &F);
+void upperRelaxation(const math::Matrix &_U0, const math::Matrix &Uexact, const math::Matrix &F);
+void chebyshevParams(const math::Matrix &_U0, const math::Matrix &Uexact, const math::Matrix &F);
+void alternatingTriangles(const math::Matrix &_U0, const math::Matrix &Uexact, const math::Matrix &F);
+void alternatingTrianglesChebyshev(const math::Matrix &_U0, const math::Matrix &Uexact, const math::Matrix &F);
 
 int main()
 {
@@ -80,8 +87,20 @@ int main()
     std::cout << "Specral radius:           rho(H)=" << rho << std::endl;
     std::cout << "Specral radius squared: rho^2(H)=" << rho * rho << std::endl;
 
+    // std::cout << std::endl;
+    // simpleIteration(U0, Uexact, F);
+    // std::cout << std::endl;
+    // simpleIterationOptimal(U0, Uexact, F);
+    // std::cout << std::endl;
+    // seidel(U0, Uexact, F);
+    // std::cout << std::endl;
+    // upperRelaxation(U0, Uexact, F);
+    // std::cout << std::endl;
+    // chebyshevParams(U0, Uexact, F);
     std::cout << std::endl;
-    simpleIteration(U0, Uexact, F);
+    alternatingTriangles(U0, Uexact, F);
+    std::cout << std::endl;
+    alternatingTrianglesChebyshev(U0, Uexact, F);
 }
 
 value_t norm(math::Matrix m)
@@ -134,18 +153,43 @@ math::Matrix Lu(two_arg_function_t u)
     return Lu(U);
 }
 
-void simpleIteration(const math::Matrix &U0, const math::Matrix &Uexact, const math::Matrix &F)
+void printTwoSolutions(const math::Matrix &Uexact, const math::Matrix &U)
 {
-    const int it_estimate = std::log(1 / epsilon) / (2 * xi);
-    const int it_count = 10;
+    std::vector<std::string> headers {"y\\x"};
+    for (int i = 0; i <= N; i++) {
+        char buffer[20];
+        std::snprintf(buffer, 20, "%.1Lf", i * hx);
+        headers.push_back("U0[" + std::string(buffer) + "]");
+    }
+    headers.push_back("");
+    for (int i = 0; i <= N; i++) {
+        char buffer[20];
+        std::snprintf(buffer, 20, "%.1Lf", i * hx);
+        headers.push_back("Uk[" + std::string(buffer) + "]");
+    }
 
-    std::cout << ">>> Simple iteration" << std::endl;
-    std::cout << "Iteration count estimate for epsilon=" << epsilon << ":  " << it_estimate << std::endl;
+    io::printTable(1 + Uexact.m_width + 1 + U.m_width, Uexact.m_height, 12, headers, [&Uexact, &U](size_t row, size_t col) {
+        if (col == 0) {
+            return row * hy;
+        }
+        if (col <= Uexact.m_width) {
+            return Uexact(row, col - 1);
+        }
+        if (col == Uexact.m_width + 1) {
+            return std::nanl("-");
+        }
+        return U(row, col - Uexact.m_width - 2);
+    });
+}
 
-    auto v = [](const two_arg_function_t fn, value_t i, value_t j) {
-        return fn(hx * i, hy * j);
-    };
-
+void runIterations(
+    const math::Matrix &U0,
+    const math::Matrix &Uexact,
+    const math::Matrix &F,
+    int it_count,
+    std::function<value_t(int k, const math::Matrix &Uprev, const math::Matrix &Ucurr, size_t i, size_t j)> recalculate
+)
+{
     math::Matrix _U0(U0);
     math::Matrix _U1(U0);
     math::Matrix *Uk = &_U0;
@@ -159,15 +203,9 @@ void simpleIteration(const math::Matrix &U0, const math::Matrix &Uexact, const m
     io::startTable(8, {"k", "||F-AUk||", "rel.d.", "||Uk-u*||", "rel.err.", "||Uk-Uk-1||", "apost.est.", "rho_k"});
 
     for (int k = 1; k <= it_count; k++) {
-        for (unsigned int i = 1; i < Uk->m_height - 1; i++) {
-            for (unsigned int j = 1; j < Uk->m_width - 1; j++) {
-                value_t k1 = v(p, i - 0.5, j) / (hx * hx);
-                value_t k2 = v(p, i + 0.5, j) / (hx * hx);
-                value_t k3 = v(q, i, j - 0.5) / (hy * hy);
-                value_t k4 = v(q, i, j + 0.5) / (hy * hy);
-                (*Uk1)(i, j) =
-                    (k1 * (*Uk)(i - 1, j) + k2 * (*Uk)(i + 1, j) + k3 * (*Uk)(i, j - 1) + k4 * (*Uk)(i, j + 1) + v(f, i, j)) /
-                    (k1 + k2 + k3 + k4);
+        for (size_t i = 1; i < Uk->m_height - 1; i++) {
+            for (size_t j = 1; j < Uk->m_width - 1; j++) {
+                (*Uk1)(i, j) = recalculate(k, *Uk, *Uk1, i, j);
             }
         }
 
@@ -187,29 +225,276 @@ void simpleIteration(const math::Matrix &U0, const math::Matrix &Uexact, const m
     }
     io::endTable(8);
 
-    std::vector<std::string> headers {"y\\x"};
-    for (int i = 0; i <= N; i++) {
-        char buffer[20];
-        std::snprintf(buffer, 20, "%.1Lf", i * hx);
-        headers.push_back("U0[" + std::string(buffer) + "]");
-    }
-    headers.push_back("");
-    for (int i = 0; i <= N; i++) {
-        char buffer[20];
-        std::snprintf(buffer, 20, "%.1Lf", i * hx);
-        headers.push_back("Uk[" + std::string(buffer) + "]");
+    printTwoSolutions(Uexact, *Uk);
+}
+
+void simpleIteration(const math::Matrix &U0, const math::Matrix &Uexact, const math::Matrix &F)
+{
+    const int it_estimate = std::log(1 / epsilon) / (2 * xi);
+    const int it_count = 10;
+
+    std::cout << ">>> Simple iteration" << std::endl;
+    std::cout << "Iteration count estimate for epsilon=" << epsilon << ":  " << it_estimate << std::endl;
+
+    runIterations(U0, Uexact, F, it_count, [&F](int k, const math::Matrix &U, const math::Matrix &Ucurr, size_t i, size_t j) {
+        value_t k1 = v(p, i - 0.5, j) / (hx * hx);
+        value_t k2 = v(p, i + 0.5, j) / (hx * hx);
+        value_t k3 = v(q, i, j - 0.5) / (hy * hy);
+        value_t k4 = v(q, i, j + 0.5) / (hy * hy);
+        return (k1 * U(i - 1, j) + k2 * U(i + 1, j) + k3 * U(i, j - 1) + k4 * U(i, j + 1) + F(i, j)) / (k1 + k2 + k3 + k4);
+    });
+}
+
+void simpleIterationOptimal(const math::Matrix &U0, const math::Matrix &Uexact, const math::Matrix &F)
+{
+    const int it_estimate = std::log(1.0l / epsilon) / (2.0l * xi);
+    const int it_count = 10;
+
+    std::cout << ">>> Simple iteration with optimal parameter" << std::endl;
+    std::cout << "Iteration count estimate for epsilon=" << epsilon << ":  " << it_estimate << std::endl;
+
+    const value_t tau = 2 / (delta + Delta);
+    runIterations(
+        U0,
+        Uexact,
+        F,
+        it_count,
+        [tau, &F](int k, const math::Matrix &U, const math::Matrix &Ucurr, size_t i, size_t j) {
+            return U(i, j) + tau * (v(p, i + 0.5, j) * (U(i + 1, j) - U(i, j)) / (hx * hx) -
+                                    v(p, i - 0.5, j) * (U(i, j) - U(i - 1, j)) / (hx * hx) +
+                                    v(q, i, j + 0.5) * (U(i, j + 1) - U(i, j)) / (hy * hy) -
+                                    v(q, i, j - 0.5) * (U(i, j) - U(i, j - 1)) / (hy * hy) + F(i, j));
+        }
+    );
+}
+
+void seidel(const math::Matrix &U0, const math::Matrix &Uexact, const math::Matrix &F)
+{
+    const int it_estimate = std::log(1.0l / epsilon) / (4.0l * xi);
+    const int it_count = 10;
+
+    std::cout << ">>> Seidel" << std::endl;
+    std::cout << "Iteration count estimate for epsilon=" << epsilon << ":  " << it_estimate << std::endl;
+
+    const value_t tau = 2 / (delta + Delta);
+    runIterations(
+        U0,
+        Uexact,
+        F,
+        it_count,
+        [tau, &F](int k, const math::Matrix &U, const math::Matrix &Ucurr, size_t i, size_t j) {
+            value_t k1 = v(p, i - 0.5, j) / (hx * hx);
+            value_t k2 = v(p, i + 0.5, j) / (hx * hx);
+            value_t k3 = v(q, i, j - 0.5) / (hy * hy);
+            value_t k4 = v(q, i, j + 0.5) / (hy * hy);
+            return (k1 * Ucurr(i - 1, j) + k2 * U(i + 1, j) + k3 * Ucurr(i, j - 1) + k4 * U(i, j + 1) + F(i, j)) /
+                   (k1 + k2 + k3 + k4);
+        }
+    );
+}
+
+void upperRelaxation(const math::Matrix &U0, const math::Matrix &Uexact, const math::Matrix &F)
+{
+    const int it_estimate = std::log(1.0l / epsilon) / std::sqrt(xi);
+    const int it_count = 10;
+
+    std::cout << ">>> Upper relaxation" << std::endl;
+    std::cout << "Iteration count estimate for epsilon=" << epsilon << ":  " << it_estimate << std::endl;
+
+    const value_t omega = 2.0l / (1.0l + std::sqrt(1 - rho * rho));
+    runIterations(
+        U0,
+        Uexact,
+        F,
+        it_count,
+        [omega, &F](int k, const math::Matrix &U, const math::Matrix &Ucurr, size_t i, size_t j) {
+            value_t k1 = v(p, i - 0.5, j) / (hx * hx);
+            value_t k2 = v(p, i + 0.5, j) / (hx * hx);
+            value_t k3 = v(q, i, j - 0.5) / (hy * hy);
+            value_t k4 = v(q, i, j + 0.5) / (hy * hy);
+
+            return U(i, j) + omega *
+                                 (F(i, j) + k2 * (U(i + 1, j) - U(i, j)) - k1 * (U(i, j) - Ucurr(i - 1, j)) +
+                                  k4 * (U(i, j + 1) - U(i, j)) - k3 * (U(i, j) - Ucurr(i, j - 1))) /
+                                 (k1 + k2 + k3 + k4);
+        }
+    );
+}
+
+void chebyshevParams(const math::Matrix &U0, const math::Matrix &Uexact, const math::Matrix &F)
+{
+    const int it_estimate = std::log(2.0l / epsilon) / (2 * std::sqrt(xi));
+    const int it_count = 16;
+
+    std::cout << ">>> Chebyshev params" << std::endl;
+    std::cout << "Iteration count estimate for epsilon=" << epsilon << ":  " << it_estimate << std::endl;
+
+    std::vector<int> theta(it_count, 1);
+    for (size_t m = 1; m < it_count; m *= 2) {
+        for (size_t i = m; i > 0; i--) {
+            theta[(2 * i - 1) - 1] = theta[(i)-1];
+        }
+        for (size_t i = 1; i <= m; i++) {
+            theta[(2 * i) - 1] = 4 * m - theta[(2 * i - 1) - 1];
+        }
     }
 
-    io::printTable(1 + Uexact.m_width + 1 + Uk->m_width, Uexact.m_height, 12, headers, [&Uexact, Uk](size_t row, size_t col) {
-        if (col == 0) {
-            return row * hy;
+    runIterations(
+        U0,
+        Uexact,
+        F,
+        it_count,
+        [it_count, &F, &theta](int k, const math::Matrix &U, const math::Matrix &Ucurr, size_t i, size_t j) {
+            using std::numbers::pi;
+            const value_t tau = 2.0l / (Delta + delta + (Delta - delta) * std::cos(pi * theta[k - 1] / (2.0l * it_count)));
+
+            value_t k1 = v(p, i - 0.5, j) / (hx * hx);
+            value_t k2 = v(p, i + 0.5, j) / (hx * hx);
+            value_t k3 = v(q, i, j - 0.5) / (hy * hy);
+            value_t k4 = v(q, i, j + 0.5) / (hy * hy);
+
+            return U(i, j) + tau * (F(i, j) + k2 * (U(i + 1, j) - U(i, j)) - k1 * (U(i, j) - U(i - 1, j)) +
+                                    k4 * (U(i, j + 1) - U(i, j)) - k3 * (U(i, j) - U(i, j - 1)));
         }
-        if (col <= Uexact.m_width) {
-            return Uexact(row, col - 1);
+    );
+}
+
+void fillBorder(math::Matrix &M, std::function<value_t(size_t i, size_t j)> compute)
+{
+    for (size_t i = 0; i < M.m_height; i++) {
+        M(i, 0) = compute(i, 0);
+        M(i, M.m_height - 1) = compute(i, M.m_height - 1);
+    }
+    for (size_t j = 0; j < M.m_width; j++) {
+        M(0, j) = compute(0, j);
+        M(M.m_width - 1, j) = compute(M.m_width - 1, j);
+    }
+}
+
+void alternatingTriangles(const math::Matrix &U0, const math::Matrix &Uexact, const math::Matrix &F)
+{
+    const int it_estimate = std::log(1.0l / epsilon) / std::log(1.0l / rho);
+    const int it_count = 10;
+
+    std::cout << ">>> Alternating triangles" << std::endl;
+    std::cout << "Iteration count estimate for epsilon=" << epsilon << ":  " << it_estimate << std::endl;
+
+    const value_t omega = 2.0l / std::sqrt(delta * Delta);
+    const value_t gamma1 = delta / (2.0l + 2.0l * std::sqrt(xi));
+    const value_t gamma2 = delta / (4.0l * std::sqrt(xi));
+    const value_t tau = 2.0l / (gamma1 + gamma2);
+    const value_t k1 = omega / (hx * hx);
+    const value_t k2 = omega / (hy * hy);
+
+    math::Matrix _U0(U0);
+    math::Matrix _U1(U0);
+    math::Matrix *Uk = &_U0;
+    math::Matrix *Uk1 = &_U1;
+
+    value_t F_AU0 = norm(F + Lu(*Uk));
+    value_t U0_Ue = norm(*Uk - Uexact);
+
+    io::startTable(6, {"k", "||F-AUk||", "rel.d.", "||Uk-u*||", "rel.err.", "||Uk-Uk-1||"});
+    for (int k = 1; k <= it_count; k++) {
+        math::Matrix Phi = Lu(*Uk) + F;
+        math::Matrix w(*Uk);
+        fillBorder(w, [](size_t i, size_t j) {
+            return 0.0l;
+        });
+
+        for (size_t i = 1; i < Uk->m_height - 1; i++) {
+            for (size_t j = 1; j < Uk->m_width - 1; j++) {
+                const value_t c1 = k1 * v(p, i - 0.5, j);
+                const value_t c2 = k2 * v(q, i, j - 0.5);
+
+                w(i, j) = (c1 * w(i - 1, j) + c2 * w(i, j - 1) + Phi(i, j)) / (1.0 + c1 + c2);
+            }
         }
-        if (col == Uexact.m_width + 1) {
-            return std::nanl("-");
+
+        for (size_t i = Uk->m_height - 2; i > 0; i--) {
+            for (size_t j = Uk->m_width - 2; j > 0; j--) {
+                const value_t c1 = k1 * v(p, i + 0.5, j);
+                const value_t c2 = k2 * v(q, i, j + 0.5);
+
+                w(i, j) = (c1 * w(i + 1, j) + c2 * w(i, j + 1) + w(i, j)) / (1.0 + c1 + c2);
+            }
         }
-        return (*Uk)(row, col - Uexact.m_width - 2);
-    });
+
+        *Uk1 = *Uk + tau * w;
+
+        value_t F_AUk = norm(F + Lu(*Uk1));
+        value_t Uk_Ue = norm(*Uk1 - Uexact);
+        value_t Uk_Uk1 = norm(*Uk1 - *Uk);
+        io::printRow(6, {static_cast<value_t>(k), F_AUk, F_AUk / F_AU0, Uk_Ue, Uk_Ue / U0_Ue, Uk_Uk1});
+
+        std::swap(Uk, Uk1);
+    }
+    io::endTable(6);
+
+    printTwoSolutions(Uexact, *Uk);
+}
+
+void alternatingTrianglesChebyshev(const math::Matrix &U0, const math::Matrix &Uexact, const math::Matrix &F)
+{
+    using std::numbers::sqrt2;
+    const int it_estimate = std::log(2.0l / epsilon) / (2.0l * sqrt2 * std::pow(xi, 1.0l / 4.0l));
+    const int it_count = 10;
+
+    std::cout << ">>> Alternating triangles chebyshev" << std::endl;
+    std::cout << "Iteration count estimate for epsilon=" << epsilon << ":  " << it_estimate << std::endl;
+
+    const value_t omega = 2.0l / std::sqrt(delta * Delta);
+    const value_t gamma1 = delta / (2.0l + 2.0l * std::sqrt(xi));
+    const value_t gamma2 = delta / (4.0l * std::sqrt(xi));
+    const value_t k1 = omega / (hx * hx);
+    const value_t k2 = omega / (hy * hy);
+
+    math::Matrix _U0(U0);
+    math::Matrix _U1(U0);
+    math::Matrix *Uk = &_U0;
+    math::Matrix *Uk1 = &_U1;
+
+    value_t F_AU0 = norm(F + Lu(*Uk));
+    value_t U0_Ue = norm(*Uk - Uexact);
+
+    io::startTable(6, {"k", "||F-AUk||", "rel.d.", "||Uk-u*||", "rel.err.", "||Uk-Uk-1||"});
+    for (int k = 1; k <= it_count; k++) {
+        math::Matrix Phi = Lu(*Uk) + F;
+        math::Matrix w(*Uk);
+        fillBorder(w, [](size_t i, size_t j) {
+            return 0.0l;
+        });
+
+        for (size_t i = 1; i < Uk->m_height - 1; i++) {
+            for (size_t j = 1; j < Uk->m_width - 1; j++) {
+                const value_t c1 = k1 * v(p, i - 0.5, j);
+                const value_t c2 = k2 * v(q, i, j - 0.5);
+
+                w(i, j) = (c1 * w(i - 1, j) + c2 * w(i, j - 1) + Phi(i, j)) / (1.0 + c1 + c2);
+            }
+        }
+
+        for (size_t i = Uk->m_height - 2; i > 0; i--) {
+            for (size_t j = Uk->m_width - 2; j > 0; j--) {
+                const value_t c1 = k1 * v(p, i + 0.5, j);
+                const value_t c2 = k2 * v(q, i, j + 0.5);
+
+                w(i, j) = (c1 * w(i + 1, j) + c2 * w(i, j + 1) + w(i, j)) / (1.0 + c1 + c2);
+            }
+        }
+
+        using std::numbers::pi;
+        value_t tau = 2.0l / (gamma1 + gamma2 + (gamma2 - gamma1) * std::cos(pi * (2.0l * k - 1.0l) / (2.0l * it_count)));
+        *Uk1 = *Uk + tau * w;
+
+        value_t F_AUk = norm(F + Lu(*Uk1));
+        value_t Uk_Ue = norm(*Uk1 - Uexact);
+        value_t Uk_Uk1 = norm(*Uk1 - *Uk);
+        io::printRow(6, {static_cast<value_t>(k), F_AUk, F_AUk / F_AU0, Uk_Ue, Uk_Ue / U0_Ue, Uk_Uk1});
+
+        std::swap(Uk, Uk1);
+    }
+    io::endTable(6);
+
+    printTwoSolutions(Uexact, *Uk);
 }
