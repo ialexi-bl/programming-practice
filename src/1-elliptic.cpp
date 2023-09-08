@@ -66,6 +66,7 @@ void upperRelaxation(const math::Matrix &_U0, const math::Matrix &Uexact, const 
 void chebyshevParams(const math::Matrix &_U0, const math::Matrix &Uexact, const math::Matrix &F);
 void alternatingTriangles(const math::Matrix &_U0, const math::Matrix &Uexact, const math::Matrix &F);
 void alternatingTrianglesChebyshev(const math::Matrix &_U0, const math::Matrix &Uexact, const math::Matrix &F);
+void alternatingDirections(const math::Matrix &_U0, const math::Matrix &Uexact, const math::Matrix &F);
 
 int main()
 {
@@ -97,10 +98,12 @@ int main()
     // upperRelaxation(U0, Uexact, F);
     // std::cout << std::endl;
     // chebyshevParams(U0, Uexact, F);
+    // std::cout << std::endl;
+    // alternatingTriangles(U0, Uexact, F);
+    // std::cout << std::endl;
+    // alternatingTrianglesChebyshev(U0, Uexact, F);
     std::cout << std::endl;
-    alternatingTriangles(U0, Uexact, F);
-    std::cout << std::endl;
-    alternatingTrianglesChebyshev(U0, Uexact, F);
+    alternatingDirections(U0, Uexact, F);
 }
 
 value_t norm(math::Matrix m)
@@ -159,7 +162,7 @@ void printTwoSolutions(const math::Matrix &Uexact, const math::Matrix &U)
     for (int i = 0; i <= N; i++) {
         char buffer[20];
         std::snprintf(buffer, 20, "%.1Lf", i * hx);
-        headers.push_back("U0[" + std::string(buffer) + "]");
+        headers.push_back("U*[" + std::string(buffer) + "]");
     }
     headers.push_back("");
     for (int i = 0; i <= N; i++) {
@@ -486,6 +489,85 @@ void alternatingTrianglesChebyshev(const math::Matrix &U0, const math::Matrix &U
         using std::numbers::pi;
         value_t tau = 2.0l / (gamma1 + gamma2 + (gamma2 - gamma1) * std::cos(pi * (2.0l * k - 1.0l) / (2.0l * it_count)));
         *Uk1 = *Uk + tau * w;
+
+        value_t F_AUk = norm(F + Lu(*Uk1));
+        value_t Uk_Ue = norm(*Uk1 - Uexact);
+        value_t Uk_Uk1 = norm(*Uk1 - *Uk);
+        io::printRow(6, {static_cast<value_t>(k), F_AUk, F_AUk / F_AU0, Uk_Ue, Uk_Ue / U0_Ue, Uk_Uk1});
+
+        std::swap(Uk, Uk1);
+    }
+    io::endTable(6);
+
+    printTwoSolutions(Uexact, *Uk);
+}
+
+void alternatingDirections(const math::Matrix &U0, const math::Matrix &Uexact, const math::Matrix &F)
+{
+    using std::numbers::sqrt2;
+    const int it_estimate = std::log(2.0l / epsilon) / (2.0l * sqrt2 * std::pow(xi, 1.0l / 4.0l));
+    const int it_count = 10;
+
+    std::cout << ">>> Alternating directions" << std::endl;
+    std::cout << "Iteration count estimate for epsilon=" << epsilon << ":  " << it_estimate << std::endl;
+
+    math::Matrix _U0(U0);
+    math::Matrix _U1(U0);
+    math::Matrix Uk12(U0);
+    math::Matrix *Uk = &_U0;
+    math::Matrix *Uk1 = &_U1;
+
+    value_t F_AU0 = norm(F + Lu(*Uk));
+    value_t U0_Ue = norm(*Uk - Uexact);
+
+    value_t tau = 2.0l / std::sqrt(delta * Delta);
+    io::startTable(6, {"k", "||F-AUk||", "rel.d.", "||Uk-u*||", "rel.err.", "||Uk-Uk-1||"});
+    for (int k = 1; k <= it_count; k++) {
+        for (size_t j = 1; j < M; j++) {
+            std::vector<value_t> S(N + 1, 0);
+            std::vector<value_t> T(N + 1, 0);
+            T[0] = U0(0, j);
+            T[N] = U0(N, j);
+            for (size_t i = 1; i < N; i++) {
+                value_t Ai = v(p, i - 0.5, j) * tau / (2.0l * hx * hx);
+                value_t Ci = v(p, i + 0.5, j) * tau / (2.0l * hx * hx);
+                value_t Bi = Ai + Ci + 1;
+                value_t Gi = -(*Uk)(i, j) - tau / 2.0l *
+                                                (v(q, i, j + 0.5) * ((*Uk)(i, j + 1) - (*Uk)(i, j)) / (hy * hy) -
+                                                 v(q, i, j - 0.5) * ((*Uk)(i, j) - (*Uk)(i, j - 1)) / (hy * hy) + F(i, j));
+                value_t denom = (Bi - Ai * S[i - 1]);
+                S[i] = Ci / denom;
+                T[i] = (Ai * T[i - 1] - Gi) / denom;
+            }
+
+            for (size_t i = N - 1; i > 0; i--) {
+                Uk12(i, j) = S[i] * Uk12(i + 1, j) + T[i];
+            }
+        }
+
+        // std::cout << Uk12 << std::endl;
+
+        for (size_t i = 1; i < N; i++) {
+            std::vector<value_t> S(M + 1, 0);
+            std::vector<value_t> T(M + 1, 0);
+            T[0] = U0(i, 0);
+            T[M] = U0(i, M);
+            for (size_t j = 1; j < M; j++) {
+                value_t Ai = v(q, i, j - 0.5) * tau / (2.0l * hy * hy);
+                value_t Ci = v(q, i, j + 0.5) * tau / (2.0l * hy * hy);
+                value_t Bi = Ai + Ci + 1;
+                value_t Gi = -Uk12(i, j) - tau / 2.0 *
+                                               (v(p, i + 0.5, j) * (Uk12(i + 1, j) - Uk12(i, j)) / (hx * hx) -
+                                                v(p, i - 0.5, j) * (Uk12(i, j) - Uk12(i - 1, j)) / (hx * hx) + F(i, j));
+                value_t denom = (Bi - Ai * S[i - 1]);
+                S[j] = Ci / denom;
+                T[j] = (Ai * T[j - 1] - Gi) / denom;
+            }
+
+            for (size_t j = M - 1; j > 0; j--) {
+                (*Uk1)(i, j) = S[j] * (*Uk1)(i, j + 1) + T[j];
+            }
+        }
 
         value_t F_AUk = norm(F + Lu(*Uk1));
         value_t Uk_Ue = norm(*Uk1 - Uexact);
