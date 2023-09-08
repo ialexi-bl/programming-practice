@@ -13,7 +13,8 @@ using solution_t = std::function<value_t(value_t, value_t)>;
 
 value_t f(value_t x)
 {
-    return x * (1.0 - x);
+    return std::sin(3 * std::numbers::pi * x);
+    // return x * (1.0 - x);
 }
 
 solution_t getExactSolution(simple_function_t f)
@@ -122,57 +123,33 @@ int main()
 {
     constexpr unsigned int N = 10;
     constexpr value_t T = 0.1;
-    constexpr value_t tau = T / 5.0;
+    constexpr value_t tau = T / 20.0;
 
     solution_t exact_solution = getExactSolution(f);
     solution_t discrete_fourier_solution = getDiscreteFourierSolution(f, N);
     solution_t grid_explicit_solution = getGridSolution(f, 0.0, N, tau);
     solution_t grid_implicit_solution = getGridSolution(f, 1.0, N, tau);
-    solution_t grid_other_solution = getGridSolution(f, 0.5, N, tau);
+    solution_t grid_s12_solution = getGridSolution(f, 0.5, N, tau);
+
+    auto printSolution = [](solution_t solution) {
+        io::printTable(7, 6, 15, {"t\\x", "0", "0.2", "0.4", "0.6", "0.8", "1"}, [=](size_t row, size_t col) {
+            switch (col) {
+            case 0:
+                return row * tau;
+            default:
+                return solution((col - 1) * 0.2, row * tau);
+            }
+        });
+    };
 
     std::cout << "> Exact solution" << std::endl;
-    io::printTable(7, 6, {"t\\x", "0", "0.2", "0.4", "0.6", "0.8", "1"}, [=](size_t row, size_t col) {
-        switch (col) {
-        case 0:
-            return row * tau;
-        default:
-            return exact_solution((col - 1) * 0.2, row * tau);
-        }
-    });
+    printSolution(exact_solution);
     std::cout << "> Discrete Fourier solution" << std::endl;
-    io::printTable(7, 6, {"t\\x", "0", "0.2", "0.4", "0.6", "0.8", "1"}, [=](size_t row, size_t col) {
-        switch (col) {
-        case 0:
-            return row * tau;
-        default:
-            return discrete_fourier_solution((col - 1) * 0.2, row * tau);
-        }
-    });
+    printSolution(discrete_fourier_solution);
     std::cout << "> Grid solution σ=0 (explicit)" << std::endl;
-    io::printTable(7, 6, {"t\\x", "0", "0.2", "0.4", "0.6", "0.8", "1"}, [=](size_t row, size_t col) {
-        switch (col) {
-        case 0:
-            return row * tau;
-        default:
-            return grid_explicit_solution((col - 1) * 0.2, row * tau);
-        }
-    });
+    printSolution(grid_explicit_solution);
     std::cout << "> Grid solution σ=1 (implicit)" << std::endl;
-    io::printTable(7, 6, {"t\\x", "0", "0.2", "0.4", "0.6", "0.8", "1"}, [=](size_t row, size_t col) {
-        switch (col) {
-        case 0:
-            return row * tau;
-        default:
-            return grid_implicit_solution((col - 1) * 0.2, row * tau);
-        }
-    });
+    printSolution(grid_implicit_solution);
     std::cout << "> Grid solution σ=1/2" << std::endl;
-    io::printTable(7, 6, {"t\\x", "0", "0.2", "0.4", "0.6", "0.8", "1"}, [=](size_t row, size_t col) {
-        switch (col) {
-        case 0:
-            return row * tau;
-        default:
-            return grid_other_solution((col - 1) * 0.2, row * tau);
-        }
-    });
+    printSolution(grid_s12_solution);
 }

@@ -22,7 +22,7 @@ std::function<math::vector(value_t)> solveExact(const math::Matrix &M, value_t t
     size_t n = M.m_height;
     assert(M.isDiagonal() || "Only diagonal matrices are supported");
 
-    auto eigenvectors = math::getJacobiEigenvectors(M, 1e-12);
+    auto eigenvectors = math::getJacobiEigenvectors(M, 1e-20);
     math::Matrix A(n, n);
 
     for (size_t i = 0; i < n; i++) {
@@ -98,19 +98,23 @@ int main()
     math::Matrix A = {{{a11, a12}, {a21, a22}}};
     math::vector Y0 = {_y1, _y2};
 
+    constexpr value_t h = 0.05;
+    constexpr size_t cell_width = 15;
+    // std::cout << std::setprecision(16);
+
     auto exactSolution = solveExact(A, t0, Y0);
-    auto euler_explicit_solution = solveEulerExplicit(A, Y0, 0.05, 0.5 / 0.05);
-    auto euler_implicit_solution = solveEulerImplicit(A, Y0, 0.05, 0.5 / 0.05);
-    auto adams_solution = solveAdams(A, Y0, 0.05, 0.5 / 0.05);
+    auto euler_explicit_solution = solveEulerExplicit(A, Y0, h, std::round(0.5 / h));
+    auto euler_implicit_solution = solveEulerImplicit(A, Y0, h, std::round(0.5 / h));
+    auto adams_solution = solveAdams(A, Y0, h, std::round(0.5 / h));
 
     io::printTable(
         9,
         6,
-        15,
+        cell_width,
         {"t", "exact y1", "exact y2", "explicit y1", "explicit y2", "implicit y1", "implicit y2", "adams y1", "adams y2"},
         [&](size_t row, size_t col) -> value_t {
             value_t t = 0.1 * row;
-            size_t i = row * (0.1 / 0.05);
+            size_t i = row * (0.1 / h);
             switch (col) {
             case 0:
                 return t;
@@ -143,7 +147,7 @@ int main()
     io::printTable(
         9,
         6,
-        15,
+        cell_width,
         {"t", "exact y1", "exact y2", "explicit y1", "explicit y2", "implicit y1", "implicit y2", "adams y1", "adams y2"},
         [&](size_t row, size_t col) -> value_t {
             value_t t = 0.1 * row;

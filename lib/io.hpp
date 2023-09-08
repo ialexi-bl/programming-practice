@@ -11,6 +11,13 @@
 
 namespace io
 {
+    constexpr size_t DEFAULT_CELL_WIDTH = 15;
+
+    void
+    startTable(size_t width, std::vector<std::string> headers, size_t cell_width = DEFAULT_CELL_WIDTH, size_t indent_width = 0);
+    void printRow(size_t width, std::vector<long double> values, size_t cell_width = DEFAULT_CELL_WIDTH, size_t indent_width = 0);
+    void endTable(size_t width, size_t cell_width = DEFAULT_CELL_WIDTH, size_t indent_width = 0);
+
     void printTable(
         std::vector<std::pair<long double, long double>> table,
         std::string header1,
